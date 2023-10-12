@@ -44,5 +44,5 @@ def export_to_onnx(model, filename):
                                     })
 
 # Export the model to ONNX format
-export_to_onnx(model, "person_reid.onnx")
+export_to_onnx(model, "person_reid_2.onnx")
 print('export complete')
