@@ -1,3 +1,4 @@
+import bodyParser from 'body-parser'
 import cors from 'cors'
 import 'dotenv/config'
 import express, {
@@ -11,13 +12,22 @@ import { predictionRoutes } from './routes/predictions.routes'
 
 const app = express()
 app.use(cors())
+app.use(bodyParser.json())
 
 type CustomError = Error & {
 	status?: number
 	messages?: string
 }
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
+app.use('/uploads/query', express.static(path.join(__dirname, 'uploads/query')))
+app.use(
+	'/uploads/gallery',
+	express.static(path.join(__dirname, 'uploads/gallery'))
+)
+app.use(
+	'/uploads/results',
+	express.static(path.join(__dirname, 'uploads/results'))
+)
 
 app.use((req, res, next) => {
 	res.setHeader(
@@ -27,7 +37,7 @@ app.use((req, res, next) => {
 	next()
 })
 
-app.use('/prediction', predictionRoutes)
+app.use('/api', predictionRoutes)
 
 //? Express Error Middleware
 app.use(
