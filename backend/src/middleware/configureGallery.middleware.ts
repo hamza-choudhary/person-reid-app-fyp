@@ -15,5 +15,5 @@ const storage = multer.memoryStorage(); // Use memory storage to handle file dat
 const upload = multer({ storage: storage });
 
 export const configureGalleryMulter = upload.fields([
-  { name: 'gallery', maxCount: 10 },
+  { name: 'gallery', maxCount: 30 },
 ]);

@@ -27,7 +27,11 @@ export async function renameAndResize(
 		.filter((file) => file.startsWith(`${imgType}-`))
 	let nextNumber =
 		existingFiles.reduce((max, fileName) => {
-			const numberPart = fileName.replace(`${imgType}-`, '').replace('.jpg', '')
+			const parts = fileName.split('-')
+			let numberPart = parts[1] // fileName.replace(`${imgType}-`, '').replace('.jpg', '')
+			if (imgType == 'query') {
+				numberPart = parts[2]
+			}
 			const number = parseInt(numberPart, 10)
 			return number > max ? number : max
 		}, 0) + 1

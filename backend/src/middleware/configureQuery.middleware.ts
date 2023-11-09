@@ -14,5 +14,5 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 export const configureQueryMulter = upload.fields([
-  { name: 'query', maxCount: 10 },
+  { name: 'query', maxCount: 1 },
 ]);
