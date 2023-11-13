@@ -270,6 +270,7 @@ export const getUploads = async (
     fs.readdir(directory, (err, files) => {
       if (err) {
         next(err);
+        // Throw err
       } else {
         // Filter files with the ".jpg" extension
         const jpgFiles = files.filter((file) => path.extname(file) === ".jpg");

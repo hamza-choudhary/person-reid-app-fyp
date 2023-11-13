@@ -114,7 +114,7 @@ with torch.inference_mode():
         # print(f"\n==========similarities============\n{similarities}")
         max_similarity = torch.max(similarities)
         # Dont save results if max score is less than this threshold
-        if max_similarity > 0.3:
+        if max_similarity > 0.45:
             visual_time_start = time.time()
             visualize_result(gallery_img_tensor, detections.cpu().numpy(), similarities, gallery_img_path)
             visual_time_end = time.time()

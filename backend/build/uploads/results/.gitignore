@@ -1,0 +1,8 @@
+# Ignore all files and directories except for .gitignore itself
+/*
+
+# Include .gitignore
+!.gitignore
+
+!/uploads
+!/seqnet

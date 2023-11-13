@@ -38,9 +38,9 @@ export async function renameAndResize(
 
 	for (const file of files[imgType]) {
 		const image = sharp(file.buffer)
-		const resizedImage = await image
-			.resize(dimensions.width, dimensions.height, { fit: 'fill' })
-			.toBuffer()
+		// const resizedImage = await image
+		// 	.resize(dimensions.width, dimensions.height, { fit: 'fill' })
+		// 	.toBuffer()
 
 		let newFileName = `${imgType}-${nextNumber}.jpg`
 		if (imgType === 'query' && personName) {
@@ -48,7 +48,7 @@ export async function renameAndResize(
 		}
 		const newPath = path.join(uploadPath, newFileName)
 
-		await fs.promises.writeFile(newPath, resizedImage) // Save the resized image directly
+		await fs.promises.writeFile(newPath, image) // Save the resized image directly
 
 		nextNumber++
 	}
