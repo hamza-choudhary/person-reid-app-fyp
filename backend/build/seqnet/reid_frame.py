@@ -52,7 +52,7 @@ def visualize_result(img_tensor, detections, similarities, img_path):
         color = (0, 0, 255)
         if i == highest_score_index: 
             # put name of person
-            cv2.putText(img, name_of_person, (x1 + 5, y1 - 35), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2)
+            cv2.putText(img, name_of_person, (x1 + 5, y1 - 35), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             color = (0, 255, 0) # green
         # Draw the rectangle
         cv2.rectangle(img, (x1, y1), (x2, y2), color, 4)
