@@ -9,10 +9,9 @@ import Home from "./pages/Home";
 import Gallery from "./pages/Gallery";
 import Inference from "./pages/Inference";
 import QueryPage from "./pages/Query";
+import Auth from "./pages/Auth";
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
     <>
       <ThemeProvider theme={theme}>
@@ -21,6 +20,7 @@ function App() {
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/query" element={<QueryPage />} />
           <Route path="/inference" element={<Inference />} />
+          <Route path="/auth" element={<Auth />} />
         </Routes>
       </ThemeProvider>
     </>
