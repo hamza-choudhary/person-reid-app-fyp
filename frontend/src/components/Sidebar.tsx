@@ -16,18 +16,26 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { NavLink } from "react-router-dom";
+import HomeIcon from "@mui/icons-material/Home";
+import CollectionsIcon from "@mui/icons-material/Collections";
+import ModelTrainingIcon from "@mui/icons-material/ModelTraining";
+import QuizIcon from "@mui/icons-material/Quiz";
+import Person2Icon from "@mui/icons-material/Person2";
+import Diversity3Icon from "@mui/icons-material/Diversity3";
 
 const drawerWidth = 240;
 
-const pages: { name: string; link: string }[] = [
+const pages: { name: string; link: string; icon: any }[] = [
   {
     name: "Home",
     link: "/",
+    icon: <HomeIcon />,
   },
-  { name: "Inference", link: `/inference` },
-  { name: "Query", link: `/query` },
-  { name: "Gallery", link: `/gallery` },
-  // { name: "About Us", link: `/about-us` },
+  { name: "About Us", link: `/about-us`, icon: <Diversity3Icon /> },
+  { name: "Inference", link: `/inference`, icon: <ModelTrainingIcon /> },
+  { name: "Query", link: `/query`, icon: <QuizIcon /> },
+  { name: "Gallery", link: `/gallery`, icon: <CollectionsIcon /> },
+  { name: "Profile", link: `/profile`, icon: <Person2Icon /> },
   // { name: "FAQs", link: `/faqs` },
 ];
 
@@ -52,8 +60,17 @@ export default function ResponsiveDrawer(props: any) {
               </ListItemIcon> */}
               <NavLink
                 to={`${text.link}`}
-                style={{ color: "white", textDecoration: "none" }}
+                style={{
+                  color: "white",
+                  textDecoration: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  columnGap: "15px",
+                }}
               >
+                <ListItemIcon sx={{ color: "text.primary", minWidth: "auto" }}>
+                  {text.icon}
+                </ListItemIcon>
                 <ListItemText primary={text.name} />
               </NavLink>
             </ListItemButton>

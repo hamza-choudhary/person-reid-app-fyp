@@ -10,6 +10,7 @@ import Gallery from "./pages/Gallery";
 import Inference from "./pages/Inference";
 import QueryPage from "./pages/Query";
 import Auth from "./pages/Auth";
+import AboutUs from "./pages/AboutUs";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/query" element={<QueryPage />} />
           <Route path="/inference" element={<Inference />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/about-us" element={<AboutUs />} />
         </Routes>
       </ThemeProvider>
     </>
