@@ -1,34 +1,30 @@
+import { useState } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
+import "./App.css";
+import { ThemeProvider } from "@mui/material";
+import theme from "./utility/theme";
 import { Route, Routes } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
 import Home from "./pages/Home";
+import Gallery from "./pages/Gallery";
+import Inference from "./pages/Inference";
+import QueryPage from "./pages/Query";
 import Auth from "./pages/Auth";
-import "react-toastify/dist/ReactToastify.css";
-import Camera from "./pages/Camera";
-import UploadImage from "./pages/UploadImage";
-import RealTimeVideo from "./pages/realTimeVideo";
+import AboutUs from "./pages/AboutUs";
 
 function App() {
   return (
     <>
-    {/* <RealTimeVideo/> */}
-      <ToastContainer
-        position="top-left"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/sign-in" element={<Auth />} />
-        <Route path="/camera" element={<Camera />} />
-        <Route path="/upload-image" element={<UploadImage />} />
-      </Routes>
+      <ThemeProvider theme={theme}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/query" element={<QueryPage />} />
+          <Route path="/inference" element={<Inference />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/about-us" element={<AboutUs />} />
+        </Routes>
+      </ThemeProvider>
     </>
   );
 }

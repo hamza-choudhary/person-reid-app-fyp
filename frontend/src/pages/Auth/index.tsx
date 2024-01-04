@@ -1,5 +1,7 @@
 import { Box, Typography } from "@mui/material";
-import LoginForm from "../../components/Home/LoginForm";
+import LoginForm from "../../components/Auth/LoginForm";
+import Logo from "../../assets/logo.png";
+import AuthBanner from "../../assets/auth-banner.png";
 
 const Auth = () => {
   return (
@@ -7,36 +9,46 @@ const Auth = () => {
       className="loginMainBackground"
       sx={{
         display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        // alignItems: "center",
+        // justifyContent: "center",
         minHeight: "100vh",
+        backgroundColor: "primary.main",
       }}
     >
-      <Box className="loginPageMain">
-        <Box className="loginPageLogoAndTitle">
+      <Box sx={{ width: "55%" }}>
+        <Box
+          component="img"
+          src={AuthBanner}
+          sx={{ height: "100vh", display: "block" }}
+        />
+      </Box>
+      <Box
+        className="loginPageMain"
+        sx={{
+          //   backgroundColor: "primary.main",
+          //   p: "20px",
+          //   width: "50%",
+          width: "45%",
+          p: "0px 60px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+          //   borderRadius: "8px",
+        }}
+      >
+        <Box className="loginPageLogoAndTitle" sx={{ textAlign: "center" }}>
           <Box
             component="img"
-            src="assets/logo.png"
+            src={Logo}
             sx={{
               marginBottom: "15px",
               width: { lg: "90px", xl: "120px" },
               height: { lg: "90px", xl: "120px" },
             }}
           />
-          <Box>
-            <Typography
-              variant="h6"
-              sx={{
-                color: "white",
-                fontSize: { lg: "40px", xl: "60px" },
-                fontWeight: "700",
-              }}
-            >
-              ReIDify
-            </Typography>
-          </Box>
         </Box>
-        <Box className="loginPageFormMain">
+        <Box className="loginPageFormMain" sx={{ width: "100%" }}>
           <LoginForm />
         </Box>
       </Box>

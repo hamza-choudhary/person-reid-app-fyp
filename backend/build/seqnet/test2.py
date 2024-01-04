@@ -45,13 +45,11 @@ def visualize_result(img_path, detections, similarities):
 
 ort_session = ort.InferenceSession("./person_reid.onnx", providers=["CPUExecutionProvider"])
 
-# Loading Query Image
-query_img = [F.to_tensor(Image.open("../uploads/query.jpg").convert("RGB"))]
-query_target = [{"boxes": torch.tensor([[0, 0, 466, 943]])}]
 
-# Convert query_img to numpy array (assuming your model expects numpy input)
-# query_img_np = query_img.numpy()
-# query_target_np = query_target.cpu().numpy()
+# Loading Query Image
+query_img = F.to_tensor(Image.open("../uploads/query.jpg").convert("RGB")).numpy()
+query_target = torch.tensor([[0, 0, 466, 943]]).numpy()
+
 
 # Create input feed dictionary
 query_input_feed = {
@@ -59,8 +57,10 @@ query_input_feed = {
     'query_target': query_target 
 }
 
+
 # Run inference
-query_feat = ort_session.run(["query_feat"], query_input_feed)[0]
+query_output = ort_session.run(["query_feat"], query_input_feed)
+query_feat = query_output[0]
 
 # Loading Gallery Images
 gallery_img_paths = sorted(glob("../uploads/gallery-*.jpg"))
@@ -69,18 +69,31 @@ for gallery_img_path in gallery_img_paths:
     print(f"Processing {gallery_img_path}")
     
     # Loading gallery_img (assuming gallery_img_path is defined somewhere)
-    gallery_img = [F.to_tensor(Image.open(gallery_img_path).convert("RGB"))]
-
-    # Convert gallery_img to numpy array
-    gallery_img_np = gallery_img.cpu().numpy()
+    gallery_img = F.to_tensor(Image.open(gallery_img_path).convert("RGB")).numpy()
 
     # Create input feed dictionary for gallery_img
     input_feed_gallery = {
-        'gallery_image': gallery_img_np
+        'gallery_image': gallery_img
     }
 
     # Run inference for gallery_img
-    gallery_output = ort_session.run(["detections"], input_feed_gallery)[0]
+    # gallery_output = ort_session.run(["detections"], input_feed_gallery)
+
+    # Create dummy inputs for query_image and query_target
+    dummy_query_img = torch.zeros((1, 3, 944, 467))  # Replace height and width with actual values
+    dummy_query_target = torch.zeros((1, 4))  # Replace with the correct shape if needed
+
+    # Run inference for gallery_img
+  # Create a dictionary containing all inputs
+    input_feed = {
+        "gallery_image": gallery_img,
+        "query_image": query_img,
+        "query_target": query_target
+    }
+
+    # Run inference for gallery_img
+    gallery_output = ort_session.run(["detections"], input_feed)
+
 
     detections = gallery_output["boxes"]
     gallery_feats = gallery_output["embeddings"]

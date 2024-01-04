@@ -1,9 +1,11 @@
 import { spawn } from "child_process";
 import { NextFunction, Request, Response } from "express";
 import fs from "fs";
+import multer from "multer";
 import path from "path";
 import sharp from "sharp";
 import { promisify } from "util";
+import { renameAndResize } from "../helpers/prediction.helper";
 
 type FilesObject = {
   [fieldname: string]: Express.Multer.File[];
@@ -132,17 +134,9 @@ export const postPredictionQuery = async (
     await resizeAllImages();
 
     const scriptPath = path.resolve(__dirname, "../seqnet");
-    const pythonProcess = spawn(
-      "python",
-      [
-        `${scriptPath}\\demo.py`,
-        "--cfg",
-        "exp_cuhk/config.yaml",
-        "--ckpt",
-        "exp_cuhk/epoch_19.pth",
-      ],
-      { cwd: scriptPath }
-    );
+    const pythonProcess = spawn("python", [`${scriptPath}\\reid_frame.py`], {
+      cwd: scriptPath,
+    });
 
     pythonProcess.stdout.on("data", async (data) => {
       console.log(`${data}`);
@@ -175,11 +169,115 @@ export const postPredictionQuery = async (
   }
 };
 
-//make predictions use python
-//convert images into webp
-//send response {query[filepath], gallery[filepath, filepath], results[filepath, filepath]}
-export const getPredictionResults = async (
+export const postUploadGalleryImg = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  try {
+    const files: FilesObject = req.files as FilesObject;
+
+    await renameAndResize(files, "gallery", { width: 1920, height: 1080 });
+
+    return res
+      .status(200)
+      .json({ message: "Gallery images uploaded successfully." });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const postUploadQueryImg = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const files: FilesObject = req.files as FilesObject;
+    const name = req.body.name;
+    await renameAndResize(files, "query", { width: 467, height: 944 }, name);
+
+    return res
+      .status(200)
+      .json({ message: "Query images uploaded successfully." });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const postInference = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const queryImgPath = req.body.query;
+  const resultFolderPath = path.join(__dirname, "../uploads", "results");
+
+  try {
+    // Check if the 'result' folder exists
+    if (fs.existsSync(resultFolderPath)) {
+      // If the folder exists, remove it
+      await fs.promises.rm(resultFolderPath, { recursive: true });
+    }
+    // Create the 'result' folder (it will also create it if it doesn't exist)
+    await fs.promises.mkdir(resultFolderPath, { recursive: true });
+
+    const scriptPath = path.resolve(__dirname, "../seqnet");
+    console.log("inference start");
+    const pythonProcess = spawn(
+      "python",
+      [`${scriptPath}\\reid_frame.py`, queryImgPath],
+      {
+        cwd: scriptPath,
+      }
+    );
+
+    pythonProcess.stdout.on("data", async (data) => {
+      console.log(`${data}`);
+
+      res.json({
+        message: "inference completed",
+      });
+    });
+
+    //dont throw error here it also stats when there are warnings
+    pythonProcess.stderr.on("data", (data) => {
+      console.log(`${data}`);
+      //   throw new Error(data);
+    });
+
+    pythonProcess.on("close", (code) => {
+      if (code !== 0) {
+        throw new Error(
+          `something wrong with python script code end wth ${code}`
+        );
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUploads = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const folder = req.params.folder; // It must be gallery, query, results
+
+  try {
+    const directory = path.join(__dirname, `../uploads/${folder}`);
+    fs.readdir(directory, (err, files) => {
+      if (err) {
+        next(err);
+        // Throw err
+      } else {
+        // Filter files with the ".jpg" extension
+        const jpgFiles = files.filter((file) => path.extname(file) === ".jpg");
+        res.status(200).json({ data: jpgFiles });
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};

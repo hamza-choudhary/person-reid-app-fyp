@@ -3,7 +3,7 @@ from collections import OrderedDict
 import torch.nn.functional as F
 import torchvision
 from torch import nn
-
+from torchvision.models.resnet import resnet50, ResNet50_Weights
 
 class Backbone(nn.Sequential):
     def __init__(self, resnet):
@@ -41,7 +41,8 @@ class Res5Head(nn.Sequential):
 
 
 def build_resnet(name="resnet50", pretrained=True):
-    resnet = torchvision.models.resnet.__dict__[name](pretrained=pretrained)
+    # resnet = torchvision.models.resnet.__dict__[name](pretrained=pretrained)
+    resnet = resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
 
     # freeze layers
     resnet.conv1.weight.requires_grad_(False)
