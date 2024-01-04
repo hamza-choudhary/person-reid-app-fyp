@@ -20,9 +20,43 @@ export async function registerUser(
 		}
 		const { name, email, password, phone, role }: RequestBody = req.body
 
-		new User({ name, email, password, phone, role })
+		const user = new User({ name, email, password, phone, role })
+		await user.save()
 
-		res.status(201).json({ message: 'user created' })
+		res.status(201).json({ status: 'ok', message: 'user created' })
+	} catch (error) {
+		const customError = error as { code?: number }
+		if (customError?.code === 11000) {
+			return next(createError('email already exists', 409))
+		}
+
+		next(error)
+	}
+}
+
+export async function updateUser(
+	req: Request,
+	res: Response,
+	next: NextFunction
+) {
+	try {
+		const { id, name, password, phone } = req.body
+
+		if (!name && !password && !phone) {
+			return next(createError('At least one field is mandatory', 400))
+		}
+
+		const updatedUser = await User.findOneAndUpdate(
+			{ _id: id, isDeleted: { $ne: true } },
+			{ name, password, phone },
+			{ new: true, runValidators: true }
+		).select('-password -isDeleted -createdAt -updatedAt')
+
+		if (!updatedUser) {
+			return next(createError('User not found', 404))
+		}
+
+		res.status(200).json({ status: 'ok', data: updatedUser })
 	} catch (error) {
 		next(error)
 	}
@@ -36,7 +70,9 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 		}
 		const { email, password }: RequestBody = req.body
 
-		const user = await User.findOne({ email: email })
+		const user = await User.findOne({ email: email }).select(
+			'-isDeleted -createdAt -updatedAt'
+		)
 
 		if (!user || user.isDeleted) {
 			throw createError('user not found', 404)
@@ -59,7 +95,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 			expiresIn: '60d',
 		})
 
-		const { ...info } = user.toObject()
+		const { password: pswd, ...info } = user.toObject()
 
 		res
 			.cookie('access_token', token, { httpOnly: true })
@@ -75,32 +111,4 @@ export async function logout(req: Request, res: Response) {
 		.clearCookie('access_token', { sameSite: 'none', secure: true })
 		.status(200)
 		.json({ data: 'logged out successfully' })
-}
-
-export async function updateProfile(
-	req: Request,
-	res: Response,
-	next: NextFunction
-) {
-	try {
-		const { id, name, password, phone } = req.body
-
-		if (!name && !password && !phone) {
-			return next(createError('At least one field is mandatory', 400))
-		}
-
-		const updatedUser = await User.findOneAndUpdate(
-			{ _id: id, isDeleted: { $ne: true } },
-			{ name, password, phone },
-			{ new: true, runValidators: true }
-		).select('-password')
-
-		if (!updatedUser) {
-			return next(createError('User not found', 404))
-		}
-
-		res.status(200).json({ data: updatedUser })
-	} catch (error) {
-		next(error)
-	}
 }
