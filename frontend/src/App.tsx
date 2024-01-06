@@ -1,6 +1,4 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+
 import "./App.css";
 import { ThemeProvider } from "@mui/material";
 import theme from "./utility/theme";
@@ -11,6 +9,8 @@ import Inference from "./pages/Inference";
 import QueryPage from "./pages/Query";
 import Auth from "./pages/Auth";
 import AboutUs from "./pages/AboutUs";
+// import FileDropZone from "./pages/Test";
+import YourFormComponent from "./pages/Test";
 
 function App() {
   return (
@@ -23,6 +23,7 @@ function App() {
           <Route path="/inference" element={<Inference />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/test" element={<YourFormComponent />} />
         </Routes>
       </ThemeProvider>
     </>

@@ -1,3 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+	font-family: 'Montserrat', sans-serif;
+}
+
 /* :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -69,15 +77,15 @@ button:focus-visible {
 } */
 
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box !important;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box !important;
 }
 
 body {
-  background-color: #d5d5d5 !important;
+	background-color: #d5d5d5 !important;
 }
 
 img {
-  width: 100%;
+	width: 100%;
 }
