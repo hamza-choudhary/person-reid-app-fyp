@@ -173,6 +173,35 @@ type FilesObject = {
 //   }
 // };
 
+export const getGalleries = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const result = await Gallery.aggregate([
+			{ $match: { isDeleted: false } }, // Filter out documents where isDeleted is false
+			{
+				$project: {
+					// Define the fields to include in the output
+					_id: 1,
+					size: { $size: '$images' }, // Calculate the size of the images array
+					image: { $arrayElemAt: ['$images', 0] }, // Get the first element of the images array
+					createdAt: 1,
+				},
+			},
+		])
+
+		return res.status(200).json({
+			status: 'ok',
+			data: result,
+			message: 'New gallery is created.',
+		})
+	} catch (error) {
+		next(error)
+	}
+}
+
 export const postGallery = async (
 	req: Request,
 	res: Response,
@@ -180,7 +209,7 @@ export const postGallery = async (
 ) => {
 	try {
 		const files: FilesObject = req.files as FilesObject
-		const id = req.body.id as string
+		const id = req.body.userId as string
 
 		// Rename files
 		const imgNames = renameFiles(files, 'gallery')
@@ -196,6 +225,32 @@ export const postGallery = async (
 			status: 'ok',
 			data: gallery.toObject(),
 			message: 'New gallery is created.',
+		})
+	} catch (error) {
+		next(error)
+	}
+}
+
+export const getGallery = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const galleryId = req.params.galleryId as string
+
+		const result = await Gallery.findOne({
+			_id: galleryId,
+			isDeleted: false,
+		}).select('_id images')
+
+		if (!result) {
+			return next(createError('gallery not found', 404))
+		}
+
+		return res.status(200).json({
+			status: 'ok',
+			data: result.toObject(),
 		})
 	} catch (error) {
 		next(error)
@@ -265,6 +320,11 @@ export const deleteGalleryImg = async (
 		if (!result) {
 			return next(createError('GalleryId is incorrect', 404))
 		}
+
+		// Check if the images array is empty and set isDeleted to true if so
+		if (result.images.length === 0) {
+			await Gallery.findByIdAndUpdate(galleryId, { isDeleted: true });
+	}
 
 		return res.status(200).json({
 			status: 'ok',
