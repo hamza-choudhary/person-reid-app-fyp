@@ -144,7 +144,7 @@ export default function Galleries() {
 							return (
 								<div
 									key={gallery._id}
-									className="relative  cursor-pointer"
+									className="relative cursor-pointer"
 									onClick={() => navigate(`/gallery/${gallery._id}`)}
 								>
 									<img

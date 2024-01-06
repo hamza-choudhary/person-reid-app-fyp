@@ -1,19 +1,31 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import Modal from '../../components/Modal/Modal'
 import ResponsiveDrawer from '../../components/Sidebar'
 import UploadImages from '../../components/UploadImages/UploadImages'
 
 export default function Gallery() {
 	type GalleryItem = {
-		_id: string
-		size: number
-		image: string
-		createdAt: Date
+		_id: string | undefined
+		images: string[] | []
 	}
 
+	const navigate = useNavigate()
+
+	//FIXME: if gallery is empty then delete whole gallery
+
 	const { galleryId } = useParams()
-	const [gallery, setGallery] = useState<GalleryItem[]>([])
+	const [showModal, setShowModal] = useState(false)
+	const [deleteImgName, setDeleteImageName] = useState('')
+	const [gallery, setGallery] = useState<GalleryItem>({
+		_id: undefined,
+		images: [],
+	})
+
+	if (!galleryId) {
+		navigate('/404')
+	}
 
 	const uploadGalleryHandler = async (formData: FormData) => {
 		const newFormData = new FormData()
@@ -28,10 +40,10 @@ export default function Gallery() {
 			}
 		}
 		//FIXME: add user id from authcontext
-		newFormData.append('userId', '6596c0531239ec6b70de7948')
+		newFormData.append('galleryId', galleryId ? galleryId : '')
 		try {
-			const response = await axios.post(
-				'http://localhost:8080/api/upload/gallery',
+			const response = await axios.put(
+				'http://localhost:8080/api/update/gallery',
 				newFormData,
 				{
 					headers: {
@@ -39,10 +51,51 @@ export default function Gallery() {
 					},
 				}
 			)
+			if (response.data.status !== 'ok') {
+				throw new Error('unable to send request to api!')
+			}
+			const { data } = response.data
 
-			console.log(response)
+			setGallery((prev) => ({ ...prev, images: data.images }))
 		} catch (error) {
 			//FIXME:L handle error and success
+			console.log(error)
+		}
+	}
+
+	const deleteGalleryImageHandler = async (
+		e: React.FormEvent<HTMLFormElement>
+	) => {
+		e.preventDefault()
+		try {
+			const response = await axios.delete(
+				'http://localhost:8080/api/delete/gallery-image',
+				{
+					data: {
+						galleryId: galleryId,
+						galleryImgName: deleteImgName,
+					},
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				}
+			)
+			if (response.data.status !== 'ok') {
+				throw new Error('request is not sending to api!')
+			}
+
+			setGallery((prev) => ({
+				...prev,
+				images: prev.images.filter((image) => image !== deleteImgName),
+			}))
+
+			setShowModal(false)
+
+			if (response.data.data.images.length === 0) {
+				navigate('/gallery')
+			}
+		} catch (error) {
+			//FIXME: handle error and success
 			console.log(error)
 		}
 	}
@@ -50,21 +103,23 @@ export default function Gallery() {
 	useEffect(() => {
 		const sendReq = async () => {
 			try {
-				const response = await axios.get('http://localhost:8080/api/')
+				const response = await axios.get(
+					`http://localhost:8080/api/gallery/${galleryId}`
+				)
 				if (response.data.status !== 'ok') {
-					throw new Error('galleries are not fetched')
+					throw new Error('unable to send req to fetch gallery')
 				}
 
-				const { data }: { data: GalleryItem[] } = response.data
+				const { data }: { data: GalleryItem } = response.data
 				setGallery(data)
 			} catch (error) {
 				//FIXME: handle error and success
-				console.log(error)
+				console.log(`not fetching the ${galleryId}`)
 			}
 		}
 
 		sendReq()
-	}, [])
+	}, [galleryId])
 
 	return (
 		<>
@@ -73,19 +128,79 @@ export default function Gallery() {
 					<UploadImages
 						className="text-lg"
 						onSubmit={uploadGalleryHandler}
-						buttonTxt="create new gallery"
+						buttonTxt="add images"
 					/>
 				</div>
 				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-					{gallery &&
-						gallery.map((gallery) => (
-							<img
-								key={gallery._id}
-								className="object-cover object-center w-full h-56 max-w-full rounded-lg"
-								src={`http://localhost:8080/uploads/gallery/${gallery.image}`}
-							/>
+					{gallery?.images &&
+						gallery?.images.map((image) => (
+							<div
+								key={image.substring(0, image.length - 4)}
+								className="relative cursor-pointer"
+							>
+								<img
+									className="object-cover object-center w-full h-56 max-w-full rounded-lg"
+									src={`http://localhost:8080/uploads/gallery/${image}`}
+								/>
+								<div className="z-10 absolute inset-0 bg-black bg-opacity-35 flex flex-col rounded-lg opacity-0 hover:opacity-100 transition-opacity">
+									<div
+										onClick={(event) => {
+											event.stopPropagation()
+											setShowModal(true)
+											setDeleteImageName(image)
+										}}
+										title="delete gallery"
+										className="self-end p-1 hover:rounded-full hover:bg-red-800 hover:bg-opacity-35 "
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											fill="#DC2626"
+											width="24"
+											height="24"
+											id="bin"
+										>
+											<path d="M9 3H7c0-1.7 1.3-3 3-3v2c-.6 0-1 .4-1 1zm8 0h-2c0-.6-.4-1-1-1V0c1.7 0 3 1.3 3 3zm0 3H7V3h2v1h6V3h2zm-7-6h4v2h-4z"></path>
+											<path d="M21 6H3c-.6 0-1-.4-1-1s.4-1 1-1h18c.6 0 1 .4 1 1s-.4 1-1 1zm-2 18H5c-.6 0-1-.4-1-1V9c0-.6.4-1 1-1h14c.6 0 1 .4 1 1v14c0 .6-.4 1-1 1zM6 22h12V10H6v12z"></path>
+											<path d="M10 20c-.6 0-1-.4-1-1v-6c0-.6.4-1 1-1s1 .4 1 1v6c0 .6-.4 1-1 1zm4 0c-.6 0-1-.4-1-1v-6c0-.6.4-1 1-1s1 .4 1 1v6c0 .6-.4 1-1 1z"></path>
+										</svg>
+									</div>
+									{/* <div className=" flex flex-col justify-center items-center my-auto">
+											<p className="text-white text-xl">
+												{gallery.size} images
+											</p>
+											<p>{date}</p>
+										</div> */}
+								</div>
+							</div>
 						))}
 				</div>
+				<Modal showModal={showModal} setShowModal={setShowModal}>
+					<form
+						onSubmit={deleteGalleryImageHandler}
+						className="lg:w-[30rem] p-6"
+						method="POST"
+					>
+						<h1 className="font-bold text-3xl text-center text-black">
+							Delete Gallery Image
+						</h1>
+						<p className="font-regular text-center mt-4 text-black">
+							Are you sure you want to delete the image?
+						</p>
+						<button
+							type="submit"
+							className="mt-11 block border-0 w-full p-2 text-title-xsml bg-primary text-white font-semibold rounded-md"
+						>
+							Delete
+						</button>
+						<button
+							type="button"
+							onClick={() => setShowModal(false)}
+							className="block border-0 w-full p-2 text-title-xsml bg-gray-200 text-primary mt-4 font-semibold rounded-md"
+						>
+							Cancel
+						</button>
+					</form>
+				</Modal>
 			</ResponsiveDrawer>
 		</>
 	)
