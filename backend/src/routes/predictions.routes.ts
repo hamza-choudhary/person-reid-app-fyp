@@ -4,6 +4,7 @@ import {
 	deleteGallery,
 	deleteGalleryImg,
 	deleteQuery,
+	getGallery,
 	postGallery,
 	postQuery,
 	putGallery,
@@ -27,6 +28,8 @@ const router = express.Router()
 // router.get('/images/:folder', getUploads)
 
 //fixme: ask gpt for appropriate names for path
+
+router.get('/all/gallery', getGallery)
 router.post('/upload/gallery', configureGalleryMulter, postGallery)
 router.put('/update/gallery', configureGalleryMulter, putGallery)
 router.delete('/delete/gallery', deleteGallery)
@@ -34,7 +37,6 @@ router.delete('/delete/gallery-image', deleteGalleryImg)
 
 router.post('/upload/query', configureQueryMulter, postQuery)
 router.delete('/delete/query', deleteQuery)
-
 
 
 

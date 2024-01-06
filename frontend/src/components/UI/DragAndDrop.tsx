@@ -52,6 +52,11 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({ onChange }) => {
 	}, [])
 
 	useEffect(() => {
+		const createImageFormData = (imageFiles: FileWithPreview[]) => {
+			const formData = new FormData()
+			imageFiles.forEach((file) => formData.append('files', file))
+			return formData
+		}
 		onChange(createImageFormData(files))
 	}, [files, onChange])
 
@@ -67,12 +72,6 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({ onChange }) => {
 			currentFiles.filter((file) => file !== fileToRemove)
 		)
 	}, [])
-
-	const createImageFormData = (imageFiles: FileWithPreview[]) => {
-		const formData = new FormData()
-		imageFiles.forEach((file) => formData.append('files', file))
-		return formData
-	}
 
 	return (
 		<div

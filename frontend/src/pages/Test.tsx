@@ -19,7 +19,7 @@ function YourFormComponent() {
 			<Modal
 				showModal={showModal}
 				setShowModal={setShowModal}
-				className="w-4/6"
+				className="w-4/5"
 			>
 				<form method="POST" className="flex flex-col px-2 pb-2">
 					<button
