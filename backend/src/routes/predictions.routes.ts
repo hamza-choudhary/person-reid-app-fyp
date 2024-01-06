@@ -6,6 +6,7 @@ import {
 	deleteQuery,
 	getGalleries,
 	getGallery,
+	getQueries,
 	postGallery,
 	postQuery,
 	putGallery,
@@ -32,6 +33,7 @@ router.get('/gallery/:galleryId', getGallery)
 router.put('/update/gallery', configureGalleryMulter, putGallery)
 router.delete('/delete/gallery-image', deleteGalleryImg)
 
+router.get('/all/queries', getQueries)
 router.post('/upload/query', configureQueryMulter, postQuery)
 router.delete('/delete/query', deleteQuery)
 

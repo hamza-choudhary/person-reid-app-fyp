@@ -323,8 +323,8 @@ export const deleteGalleryImg = async (
 
 		// Check if the images array is empty and set isDeleted to true if so
 		if (result.images.length === 0) {
-			await Gallery.findByIdAndUpdate(galleryId, { isDeleted: true });
-	}
+			await Gallery.findByIdAndUpdate(galleryId, { isDeleted: true })
+		}
 
 		return res.status(200).json({
 			status: 'ok',
@@ -359,6 +359,25 @@ export const deleteGallery = async (
 		return res.status(200).json({
 			status: 'ok',
 			message: 'gallery deleted successfully.',
+		})
+	} catch (error) {
+		next(error)
+	}
+}
+
+export const getQueries = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const result = await Query.find({ isDeleted: false }).select(
+			'-createdAt -isDeleted -results -updatedAt -createdBy'
+		)
+
+		return res.status(200).json({
+			status: 'ok',
+			data: result,
 		})
 	} catch (error) {
 		next(error)
