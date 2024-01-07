@@ -12,9 +12,13 @@ interface FileWithPreview extends File {
 
 interface DragAndDropProps {
 	onChange: (formData: FormData) => void
+	multiple?: boolean
 }
 
-const DragAndDrop: React.FC<DragAndDropProps> = ({ onChange }) => {
+const DragAndDrop: React.FC<DragAndDropProps> = ({
+	onChange,
+	multiple = true,
+}) => {
 	const [files, setFiles] = useState<FileWithPreview[]>([])
 
 	const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
@@ -48,8 +52,12 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({ onChange }) => {
 			return fileWithPreview
 		})
 
-		setFiles((currentFiles) => [...currentFiles, ...mappedFiles])
-	}, [])
+		if (multiple) {
+			setFiles((currentFiles) => [...currentFiles, ...mappedFiles])
+		} else {
+			setFiles(mappedFiles.slice(0, 1)) // Keep only the first file
+		}
+	}, [multiple])
 
 	useEffect(() => {
 		const createImageFormData = (imageFiles: FileWithPreview[]) => {
@@ -82,7 +90,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({ onChange }) => {
 			<input
 				accept="image/*"
 				type="file"
-				multiple
+				multiple={multiple}
 				className="absolute inset-0 z-10 w-full h-full p-0 m-0 outline-none opacity-0 cursor-pointer"
 				onChange={(e) => e.target.files && handleFiles(e.target.files)}
 			/>
