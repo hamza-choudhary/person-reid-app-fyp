@@ -8,6 +8,7 @@ import { promisify } from 'util'
 import { renameFiles, resizeAndSaveImages } from '../helpers/prediction.helper'
 import Gallery from '../models/Gallery.model'
 import Query from '../models/Query.model'
+import Result from '../models/Result.model'
 import User from '../models/User.model'
 import { createError } from '../utils/createError'
 
@@ -446,6 +447,79 @@ export const deleteQuery = async (
 		return res.status(201).json({
 			status: 'ok',
 			message: 'query deleted successfully.',
+		})
+	} catch (error) {
+		next(error)
+	}
+}
+
+export const getResults = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const result = await Result.aggregate([
+			{ $match: { isDeleted: false } },
+			{
+				$lookup: {
+					from: 'queries', // Make sure this is the correct collection name
+					localField: 'queryId',
+					foreignField: '_id',
+					as: 'queryData',
+				},
+			},
+			{
+				$unwind: {
+					path: '$queryData',
+					preserveNullAndEmptyArrays: true,
+				},
+			},
+			{
+				$project: {
+					_id: 1,
+					queryId: '$queryData._id',
+					name: '$queryData.name',
+					queryImage: '$queryData.image',
+					resultImage: { $arrayElemAt: ['$images', 0] },
+					size: { $size: '$images' },
+					createdAt: 1,
+				},
+			},
+		])
+
+		return res.status(200).json({
+			status: 'ok',
+			data: result,
+		})
+	} catch (error) {
+		next(error)
+	}
+}
+
+export const deleteResults = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const resultId = req.body.resultId as string
+
+		if (!resultId) {
+			return next(createError('resultId is not provided', 400))
+		}
+
+		const result = await Result.findByIdAndUpdate(resultId, {
+			$set: { isDeleted: true },
+		})
+
+		if (!result) {
+			return next(createError('result not found', 404))
+		}
+
+		return res.status(200).json({
+			status: 'ok',
+			message: 'result deleted successfully.',
 		})
 	} catch (error) {
 		next(error)

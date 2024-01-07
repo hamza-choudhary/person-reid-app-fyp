@@ -4,9 +4,11 @@ import {
 	deleteGallery,
 	deleteGalleryImg,
 	deleteQuery,
+	deleteResults,
 	getGalleries,
 	getGallery,
 	getQueries,
+	getResults,
 	postGallery,
 	postQuery,
 	putGallery,
@@ -36,5 +38,8 @@ router.delete('/delete/gallery-image', deleteGalleryImg)
 router.get('/all/queries', getQueries)
 router.post('/upload/query', configureQueryMulter, postQuery)
 router.delete('/delete/query', deleteQuery)
+
+router.get('/all/results', getResults)
+router.delete('/delete/result', deleteResults)
 
 export { router as predictionRoutes }
