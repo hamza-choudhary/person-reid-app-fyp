@@ -1,151 +1,189 @@
-import axios from 'axios'
-import { useEffect, useState } from 'react'
-import ResponsiveDrawer from '../../components/Sidebar'
-import GallerySelection from './components/GallerySelection'
-import ImageResults from './components/ImageResults'
-import QuerySelection from './components/QuerySelection'
+import axios from "axios"
+import { useEffect, useState } from "react"
+import ResponsiveDrawer from "../../components/Sidebar"
+import GallerySelection from "./components/GallerySelection"
+import ImageResults from "./components/ImageResults"
+import QuerySelection from "./components/QuerySelection"
+import Button from "../../components/UI/Button"
 
 interface QueryItem {
-	_id: string
-	image: string
-	name: string
-	description: string
+  _id: string
+  image: string
+  name: string
+  description?: string
+  createdAt?: string
 }
 
 interface GalleryItem {
-	_id: string
-	size: number
-	image: string
-	createdAt: Date
+  _id: string
+  size: number
+  image: string
+  createdAt: Date
 }
 interface MyFormData {
-	queryId: string
-	galleryId: string
+  queryId: string
+  galleryId: string
 }
 
 enum Step {
-	SelectQuery,
-	SelectGallery,
-	ShowHelloWorld,
+  SelectQuery,
+  SelectGallery,
+  ShowHelloWorld,
+}
+
+interface SelectedQueryInterface {
+  imageName: string
+  name: string
+  description?: string
+  createdAt?: string
 }
 
 export default function InferencePage() {
-	const [queries, setQueries] = useState<QueryItem[]>([])
-	const [galleries, setGalleries] = useState<GalleryItem[]>([])
-	const [error, setError] = useState<string>('')
+  const [queries, setQueries] = useState<QueryItem[]>([])
+  const [galleries, setGalleries] = useState<GalleryItem[]>([])
+  const [error, setError] = useState<string>("")
 
-	const [currentStep, setCurrentStep] = useState<Step>(Step.SelectQuery)
-	const [formData, setFormData] = useState<MyFormData>({
-		queryId: '',
-		galleryId: '',
-	})
+  const [currentStep, setCurrentStep] = useState<Step>(Step.SelectQuery)
+  const [selectedQuery, setSelectedQuery] = useState<SelectedQueryInterface>({
+    imageName: "",
+    name: "",
+    description: "",
+    createdAt: "",
+  })
+  const [formData, setFormData] = useState<MyFormData>({
+    queryId: "",
+    galleryId: "",
+  })
 
-	const handleSubmit = async () => {
-		console.log(formData)
-	}
+  const handleSubmit = async () => {
+    console.log(formData)
+  }
 
-	const handleContinue = () => {
-		if (currentStep === Step.SelectQuery && formData.queryId) {
-			setCurrentStep(Step.SelectGallery)
-		} else if (currentStep === Step.SelectGallery && formData.galleryId) {
-			setCurrentStep(Step.ShowHelloWorld)
-			handleSubmit()
-		}
-	}
+  const handleContinue = () => {
+    if (currentStep === Step.SelectQuery && formData.queryId) {
+      setCurrentStep(Step.SelectGallery)
+      const query = queries.find((query) => query._id === formData.queryId)
 
-	const handleBack = () => {
-		if (currentStep === Step.SelectGallery) {
-			setCurrentStep(Step.SelectQuery)
-			setFormData({ ...formData, galleryId: '' })
-		}
-	}
+      let date
+      if (query?.createdAt) {
+        const options: Intl.DateTimeFormatOptions = {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }
+        date = new Date(query?.createdAt)
+          .toLocaleString("en-US", options)
+          .replace(/(\d+)\/(\d+)\/(\d+),\s(\d+:\d+\s[APM]+)/, "$2/$1/$3 $4")
+      }
 
-	useEffect(() => {
-		const fetchQueries = async () => {
-			try {
-				const response = await axios.get('http://localhost:8080/api/queries')
-				if (response.data.status !== 'ok') {
-					throw new Error('Failed to fetch queries')
-				}
-				setQueries(response.data.data)
-			} catch (err) {
-				setError('Error fetching queries')
-			}
-		}
+      setSelectedQuery({
+        imageName: query?.image || "", // assuming query has an `image` property, replace "" with a default value if needed
+        name: query?.name || "",
+        description: query?.description || "",
+        createdAt: date || "",
+      })
+    } else if (currentStep === Step.SelectGallery && formData.galleryId) {
+      setCurrentStep(Step.ShowHelloWorld)
+      handleSubmit()
+    }
+  }
 
-		const fetchGalleries = async () => {
-			try {
-				const response = await axios.get('http://localhost:8080/api/galleries')
-				if (response.data.status !== 'ok') {
-					throw new Error('Failed to fetch galleries')
-				}
-				setGalleries(response.data.data)
-			} catch (err) {
-				setError('Error fetching galleries')
-			}
-		}
+  const handleBack = () => {
+    if (currentStep === Step.SelectGallery) {
+      setCurrentStep(Step.SelectQuery)
+      setFormData({ ...formData, galleryId: "" })
+    }
+  }
 
-		fetchQueries()
-		fetchGalleries()
-	}, [])
+  useEffect(() => {
+    const fetchQueries = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/api/queries")
+        if (response.data.status !== "ok") {
+          throw new Error("Failed to fetch queries")
+        }
+        setQueries(response.data.data)
+      } catch (err) {
+        setError("Error fetching queries")
+      }
+    }
 
-	return (
-		<ResponsiveDrawer className="p-4">
-			{error ? (
-				<p>Error: {error}</p>
-			) : (
-				<>
-					{currentStep === Step.SelectQuery && (
-						<QuerySelection
-							queries={queries}
-							formData={formData}
-							setFormData={setFormData}
-						/>
-					)}
+    const fetchGalleries = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/api/galleries")
+        if (response.data.status !== "ok") {
+          throw new Error("Failed to fetch galleries")
+        }
+        setGalleries(response.data.data)
+      } catch (err) {
+        setError("Error fetching galleries")
+      }
+    }
 
-					{currentStep === Step.SelectGallery && (
-						<GallerySelection
-							galleries={galleries}
-							formData={formData}
-							setFormData={setFormData}
-						/>
-					)}
+    fetchQueries()
+    fetchGalleries()
+  }, [])
 
-					{currentStep === Step.ShowHelloWorld && (
-						<ImageResults setCurrentStep={setCurrentStep} />
-					)}
+  return (
+    <ResponsiveDrawer className="p-4">
+      {error ? (
+        <p>Error: {error}</p>
+      ) : (
+        <>
+          {currentStep === Step.SelectQuery && (
+            <QuerySelection
+              queries={queries}
+              formData={formData}
+              setFormData={setFormData}
+            />
+          )}
 
-					{currentStep !== Step.ShowHelloWorld && (
-						<div className="flex justify-between mt-4">
-							{currentStep !== Step.SelectQuery && (
-								<button
-									className="bg-blue-500 text-white font-bold py-2 px-4 rounded"
-									onClick={handleBack}
-								>
-									Back
-								</button>
-							)}
+          {currentStep === Step.SelectGallery && (
+            <GallerySelection
+              galleries={galleries}
+              formData={formData}
+              setFormData={setFormData}
+            />
+          )}
 
-							{(currentStep === Step.SelectQuery && formData.queryId) ||
-							(currentStep === Step.SelectGallery && formData.galleryId) ? (
-								<button
-									className="bg-green-500 text-white font-bold py-2 px-4 rounded"
-									onClick={handleContinue}
-								>
-									Continue
-								</button>
-							) : (
-								<button
-									className="bg-gray-500 text-white font-bold py-2 px-4 rounded"
-									disabled
-								>
-									Continue
-								</button>
-							)}
-						</div>
-					)}
-				</>
-			)}
-		</ResponsiveDrawer>
-	)
+          {currentStep === Step.ShowHelloWorld && (
+            <ImageResults query={selectedQuery} setCurrentStep={setCurrentStep} />
+          )}
+
+          {currentStep !== Step.ShowHelloWorld && (
+            <div className="flex justify-center items-center gap-6 mt-16">
+              {currentStep !== Step.SelectQuery && (
+                <Button
+                  className="font-medium bg-[#F8B500] w-40 py-3"
+                  onClick={handleBack}
+                >
+                  Back
+                </Button>
+              )}
+
+              {(currentStep === Step.SelectQuery && formData.queryId) ||
+              (currentStep === Step.SelectGallery && formData.galleryId) ? (
+                <Button
+                  className="font-medium w-40 py-3"
+                  onClick={handleContinue}
+                >
+                  Continue
+                </Button>
+              ) : (
+                <Button
+                  className="font-medium w-40 py-3 bg-slate-400 cursor-not-allowed"
+                  disabled={true}
+                >
+                  Continue
+                </Button>
+              )}
+            </div>
+          )}
+        </>
+      )}
+    </ResponsiveDrawer>
+  )
 }
