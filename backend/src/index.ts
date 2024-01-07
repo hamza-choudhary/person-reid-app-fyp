@@ -9,8 +9,10 @@ import express, {
 } from 'express'
 import path from 'path'
 import { authRoutes } from './routes/auth.routes'
-import { predictionRoutes } from './routes/predictions.routes'
 import './utils/database'
+import { galleryRoutes } from './routes/gallery.routes'
+import { queryRoutes } from './routes/query.routes'
+import { resultRoutes } from './routes/results.routes'
 
 const app = express()
 app.use(cors())
@@ -39,7 +41,9 @@ app.use((req, res, next) => {
 	next()
 })
 
-app.use('/api', predictionRoutes)
+app.use('/api', galleryRoutes)
+app.use('/api', queryRoutes)
+app.use('/api', resultRoutes)
 app.use('/auth', authRoutes)
 
 //? Express Error Middleware

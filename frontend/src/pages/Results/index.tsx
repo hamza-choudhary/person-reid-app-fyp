@@ -3,72 +3,28 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Modal from '../../components/Modal/Modal'
 import ResponsiveDrawer from '../../components/Sidebar'
-import UploadImages from '../../components/UploadImages/UploadImages'
 
-export default function Galleries() {
-	type GalleryItem = {
+export default function Results() {
+	type ResultsItem = {
 		_id: string
+		queryId: string
+		name: string
+		queryImage: string
+		resultImage: string
+		createdAt?: Date
 		size: number
-		image: string
-		createdAt: Date
 	}
 
 	const navigate = useNavigate()
 	const [showModal, setShowModal] = useState(false)
-	const [galleries, setGalleries] = useState<GalleryItem[]>([])
-	const [deleteGalleryId, setDeleteGalleryId] = useState('')
+	const [results, setResults] = useState<ResultsItem[]>([])
+	const [deleteResultId, setDeleteResultId] = useState('')
 
-	const uploadGalleryHandler = async (formData: FormData) => {
-		const newFormData = new FormData()
-
-		for (const [key, value] of formData.entries()) {
-			if (key === 'files') {
-				// Change key from 'files' to 'gallery'
-				newFormData.append('gallery', value)
-			} else {
-				// Append other entries as is
-				newFormData.append(key, value)
-			}
-		}
-		//FIXME: add user id from authcontext
-		newFormData.append('userId', '6596c0531239ec6b70de7948')
-		try {
-			const response = await axios.post(
-				'http://localhost:8080/api/galleries',
-				newFormData,
-				{
-					headers: {
-						'Content-Type': 'multipart/form-data',
-					},
-				}
-			)
-			if (response.data.status !== 'ok') {
-				throw new Error('images are not uploaded!')
-			}
-			const { data } = response.data
-
-			setGalleries((prev) => [
-				...prev,
-				{
-					_id: data._id,
-					size: data.images.length,
-					image: data.images[0],
-					createdAt: data.createdAt,
-				},
-			])
-
-			console.log(response)
-		} catch (error) {
-			//FIXME:L handle error and success
-			console.log(error)
-		}
-	}
-
-	const deleteGalleryHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+	const deleteResultHandler = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		try {
 			const response = await axios.delete(
-				`http://localhost:8080/api/galleries/${deleteGalleryId}`,
+				`http://localhost:8080/api/results/${deleteResultId}`,
 				{
 					headers: {
 						'Content-Type': 'application/json',
@@ -76,11 +32,11 @@ export default function Galleries() {
 				}
 			)
 			if (response.data.status !== 'ok') {
-				throw new Error('request is not sending to api!')
+				throw new Error('unable to send delete request to api!')
 			}
 
-			setGalleries((prev) =>
-				prev.filter((gallery) => gallery._id !== deleteGalleryId)
+			setResults((prev) =>
+				prev.filter((result) => result._id !== deleteResultId)
 			)
 			setShowModal(false)
 		} catch (error) {
@@ -92,13 +48,13 @@ export default function Galleries() {
 	useEffect(() => {
 		const sendReq = async () => {
 			try {
-				const response = await axios.get('http://localhost:8080/api/galleries')
+				const response = await axios.get('http://localhost:8080/api/results')
 				if (response.data.status !== 'ok') {
-					throw new Error('galleries are not fetched')
+					throw new Error('unable to fetch results!')
 				}
 
-				const { data }: { data: GalleryItem[] } = response.data
-				setGalleries(data)
+				const { data }: { data: ResultsItem[] } = response.data
+				setResults(data)
 			} catch (error) {
 				//FIXME: handle error and success
 				console.log(error)
@@ -111,47 +67,43 @@ export default function Galleries() {
 	return (
 		<>
 			<ResponsiveDrawer className="p-4">
-				<div className="flex justify-end mb-4">
-					<UploadImages
-						className="text-lg"
-						onSubmit={uploadGalleryHandler}
-						buttonTxt="create new gallery"
-					/>
-				</div>
 				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-					{galleries &&
-						galleries.map((gallery) => {
-							const options: Intl.DateTimeFormatOptions = {
-								year: 'numeric',
-								month: '2-digit',
-								day: '2-digit',
-								hour: '2-digit',
-								minute: '2-digit',
-								hour12: true,
+					{results &&
+						results.map((result) => {
+							let date
+							if (result.createdAt) {
+								const options: Intl.DateTimeFormatOptions = {
+									year: 'numeric',
+									month: '2-digit',
+									day: '2-digit',
+									hour: '2-digit',
+									minute: '2-digit',
+									hour12: true,
+								}
+								date = new Date(result?.createdAt)
+									.toLocaleString('en-US', options)
+									.replace(
+										/(\d+)\/(\d+)\/(\d+),\s(\d+:\d+\s[APM]+)/,
+										'$2/$1/$3 $4'
+									)
 							}
-							const date = new Date(gallery.createdAt)
-								.toLocaleString('en-US', options)
-								.replace(
-									/(\d+)\/(\d+)\/(\d+),\s(\d+:\d+\s[APM]+)/,
-									'$2/$1/$3 $4'
-								)
 
 							return (
 								<div
-									key={gallery._id}
+									key={result._id}
 									className="relative cursor-pointer"
-									onClick={() => navigate(`/gallery/${gallery._id}`)}
+									onClick={() => navigate(`/result/${result._id}`)}
 								>
 									<img
 										className="object-cover object-center w-full h-56 max-w-full rounded-lg"
-										src={`http://localhost:8080/uploads/gallery/${gallery.image}`}
+										src={`http://localhost:8080/uploads/results/${result.resultImage}`}
 									/>
 									<div className="z-10 absolute inset-0 bg-black bg-opacity-35 flex flex-col rounded-lg opacity-0 hover:opacity-100 transition-opacity">
 										<div
 											onClick={(event) => {
 												event.stopPropagation()
 												setShowModal(true)
-												setDeleteGalleryId(gallery._id)
+												setDeleteResultId(result._id)
 											}}
 											title="delete gallery"
 											className="self-end p-1 hover:rounded-full hover:bg-red-800 hover:bg-opacity-35 "
@@ -169,10 +121,9 @@ export default function Galleries() {
 											</svg>
 										</div>
 										<div className=" flex flex-col justify-center items-center my-auto">
-											<p className="text-white text-xl">
-												{gallery.size} images
-											</p>
-											<p>{date}</p>
+											<p className="text-white text-xl">{result.size} images</p>
+
+											<p>{date ? date : ''}</p>
 										</div>
 									</div>
 								</div>
@@ -181,15 +132,15 @@ export default function Galleries() {
 				</div>
 				<Modal showModal={showModal} setShowModal={setShowModal}>
 					<form
-						onSubmit={deleteGalleryHandler}
+						onSubmit={deleteResultHandler}
 						className="lg:w-[30rem] p-6"
 						method="POST"
 					>
 						<h1 className="font-bold text-3xl text-center text-black">
-							Delete Gallery
+							Delete Result
 						</h1>
 						<p className="font-regular text-center mt-4 text-black">
-							Are you sure you want to delete the gallery?
+							Are you sure you want to delete the results?
 						</p>
 						<button
 							type="submit"
