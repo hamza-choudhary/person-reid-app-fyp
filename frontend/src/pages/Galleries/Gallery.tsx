@@ -43,7 +43,7 @@ export default function Gallery() {
 		newFormData.append('galleryId', galleryId ? galleryId : '')
 		try {
 			const response = await axios.put(
-				'http://localhost:8080/api/update/gallery',
+				'http://localhost:8080/api/gallery',
 				newFormData,
 				{
 					headers: {
@@ -69,12 +69,8 @@ export default function Gallery() {
 		e.preventDefault()
 		try {
 			const response = await axios.delete(
-				'http://localhost:8080/api/delete/gallery-image',
+				`http://localhost:8080/api/galleries/${galleryId}/images/${deleteImgName}`,
 				{
-					data: {
-						galleryId: galleryId,
-						galleryImgName: deleteImgName,
-					},
 					headers: {
 						'Content-Type': 'application/json',
 					},
@@ -104,7 +100,7 @@ export default function Gallery() {
 		const sendReq = async () => {
 			try {
 				const response = await axios.get(
-					`http://localhost:8080/api/gallery/${galleryId}`
+					`http://localhost:8080/api/galleries/${galleryId}`
 				)
 				if (response.data.status !== 'ok') {
 					throw new Error('unable to send req to fetch gallery')

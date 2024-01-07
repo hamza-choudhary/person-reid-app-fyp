@@ -20,9 +20,6 @@ const querySchema = new Schema(
 			ref: 'User',
 			required: true,
 		},
-		results: {
-			type: [String],
-		},
 		isDeleted: {
 			type: Boolean,
 			default: false,

@@ -57,7 +57,7 @@ export default function QueryPage() {
 		const sendReq = async () => {
 			try {
 				const response = await axios.get(
-					'http://localhost:8080/api/all/queries'
+					'http://localhost:8080/api/queries'
 				)
 				if (response.data.status !== 'ok') {
 					throw new Error('queries are not fetched')
@@ -88,7 +88,7 @@ export default function QueryPage() {
 			newFormData.append('userId', '6596c0531239ec6b70de7948')
 
 			const response = await axios.post(
-				'http://localhost:8080/api/upload/query',
+				'http://localhost:8080/api/queries',
 				newFormData,
 				{
 					headers: { 'Content-Type': 'multipart/form-data' },
@@ -116,11 +116,8 @@ export default function QueryPage() {
 		e.preventDefault()
 		try {
 			const response = await axios.delete(
-				'http://localhost:8080/api/delete/query',
+				`http://localhost:8080/api/queries/${deleteQueryId}`,
 				{
-					data: {
-						queryId: deleteQueryId,
-					},
 					headers: {
 						'Content-Type': 'application/json',
 					},
