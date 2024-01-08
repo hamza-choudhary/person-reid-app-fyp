@@ -50,16 +50,16 @@ def visualize_result(img_tensor, detections, similarities, img_path):
         # Put the similarity score text
         cv2.putText(img, "{:.2f}".format(sim), (x1 + 5, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.75, color, 2)
 
-        # Replace 'gallery' with 'results' in the path
-        result_path = img_path.replace("gallery", "results")
-        # Extract the image name from the path and prepend 'result-' to the image name
-        image_name = img_path.split('/')[-1]  # Get the last part of the path
-        result_image_name = "result-" + image_name
-        # Modify result_path to include the new image name
-        result_path = result_path.replace(image_name, result_image_name)
-        # Save the image
-        cv2.imwrite(result_path, img)
-        print(result_image_name, flush=True)
+    # Replace 'gallery' with 'results' in the path
+    result_path = img_path.replace("gallery", "results")
+    # Extract the image name from the path and prepend 'result-' to the image name
+    image_name = img_path.split('/')[-1]  # Get the last part of the path
+    result_image_name = "result-" + image_name
+    # Modify result_path to include the new image name
+    result_path = result_path.replace(image_name, result_image_name)
+    # Save the image
+    cv2.imwrite(result_path, img)
+    print(result_image_name, flush=True)
 
 # //! Configuration
 cfg = get_default_cfg()

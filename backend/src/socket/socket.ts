@@ -1,33 +1,31 @@
 // socket.ts
-import { Server as SocketIOServer } from 'socket.io';
+import { Server as HTTPServer } from 'http'
+import { Server as SocketIOServer } from 'socket.io'
 
-let io: SocketIOServer;
+let io: SocketIOServer
 
-export const initSocket = (server) => {
-    io = new SocketIOServer(server, {
-        // Socket.IO configuration
-    });
+export const initSocket = (server: HTTPServer) => {
+	io = new SocketIOServer(server, {
+		cors: {
+			origin: '*', // or specify origins you want to allow
+			methods: ['GET', 'POST'],
+		},
+	})
 
-    io.on('connection', (socket) => {
-        console.log('New client connected');
-        
-        // You can set up all your socket event listeners here
-        // For example:
-        // socket.on('someEvent', (data) => {
-        //     // handle the event
-        // });
+	io.on('connection', (socket) => {
+		console.log('New client connected')
 
-        socket.on('disconnect', () => {
-            console.log('Client disconnected');
-        });
-    });
+		socket.on('disconnect', () => {
+			console.log('Client disconnected')
+		})
+	})
 
-    return io;
-};
+	return io
+}
 
 export const getIo = () => {
-    if (!io) {
-        throw new Error("Socket.io not initialized!");
-    }
-    return io;
-};
+	if (!io) {
+		throw new Error('Socket.io not initialized!')
+	}
+	return io
+}
