@@ -183,6 +183,13 @@ export default function QueryPage() {
 							</div>
 						))}
 				</div>
+				<Carosal
+          showCarosal={showCarosal}
+          setShowCarosal={setShowCarosal}
+          firstIndex={imageIndex}
+          imageType="query"
+          images={}
+        />
 				<Modal
 					showModal={showAddQueryModal}
 					setShowModal={setShowAddQueryModal}
@@ -268,6 +275,7 @@ export default function QueryPage() {
 						</button>
 					</form>
 				</Modal>
+
 			</ResponsiveDrawer>
 		</>
 	)
