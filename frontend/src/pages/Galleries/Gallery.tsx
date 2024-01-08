@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import Modal from '../../components/Modal/Modal'
 import ResponsiveDrawer from '../../components/Sidebar'
 import UploadImages from '../../components/UploadImages/UploadImages'
+import './gallery.css'
 
 export default function Gallery() {
 	type GalleryItem = {
@@ -22,6 +23,30 @@ export default function Gallery() {
 		_id: undefined,
 		images: [],
 	})
+
+	const [showCarosal, setShowCarosal] = useState(false)
+	const [currentIndex, setCurrentIndex] = useState(0)
+
+	const openModal = (index: number) => {
+		setCurrentIndex(index)
+		setShowCarosal(true)
+	}
+
+	const closeModal = () => {
+		setShowCarosal(false)
+	}
+
+	const goToPrevious = () => {
+		setCurrentIndex((prevIndex) =>
+			prevIndex > 0 ? prevIndex - 1 : gallery.images.length - 1
+		)
+	}
+
+	const goToNext = () => {
+		setCurrentIndex((prevIndex) =>
+			prevIndex < gallery.images.length - 1 ? prevIndex + 1 : 0
+		)
+	}
 
 	if (!galleryId) {
 		navigate('/404')
@@ -129,10 +154,11 @@ export default function Gallery() {
 				</div>
 				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
 					{gallery?.images &&
-						gallery?.images.map((image) => (
+						gallery?.images.map((image, index) => (
 							<div
 								key={image.substring(0, image.length - 4)}
 								className="relative cursor-pointer"
+								onClick={() => openModal(index)}
 							>
 								<img
 									className="object-cover object-center w-full h-56 max-w-full rounded-lg"
@@ -169,7 +195,52 @@ export default function Gallery() {
 								</div>
 							</div>
 						))}
+
+					{showCarosal && (
+						<div
+							className="absolute w-screen h-screen inset-0 bg-red-500 bg-opacity-50 flex justify-center items-center z-[60]"
+							onClick={closeModal}
+						>
+							<div
+								className="bg-white p-4 rounded-lg max-w-4xl max-h-full w-4/5 h-4/5 flex justify-between items-center relative"
+								onClick={(e) => e.stopPropagation()}
+							>
+								<button onClick={goToPrevious} className="focus:outline-none">
+									<svg
+										className="w-8 h-8 text-gray-800"
+										fill="none"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth="2"
+										viewBox="0 0 24 24"
+										stroke="currentColor"
+									>
+										<path d="M15 19l-7-7 7-7"></path>
+									</svg>
+								</button>
+								<img
+									className="object-contain w-full h-full transition-opacity duration-300 ease-in-out"
+									src={`http://localhost:8080/uploads/gallery/${gallery.images[currentIndex]}`}
+									alt=""
+								/>
+								<button onClick={goToNext} className="focus:outline-none">
+									<svg
+										className="w-8 h-8 text-gray-800"
+										fill="none"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth="2"
+										viewBox="0 0 24 24"
+										stroke="currentColor"
+									>
+										<path d="M9 5l7 7-7 7"></path>
+									</svg>
+								</button>
+							</div>
+						</div>
+					)}
 				</div>
+
 				<Modal showModal={showModal} setShowModal={setShowModal}>
 					<form
 						onSubmit={deleteGalleryImageHandler}
