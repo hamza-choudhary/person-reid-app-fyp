@@ -165,8 +165,8 @@ export async function postResults(
 
 		const resultImages: string[] = []
 
-		const scriptPath = path.resolve(__dirname, '../controllers')
-		const pythonProcess = spawn('python', [path.join(scriptPath, 'test.py')], {
+		const scriptPath = path.resolve(__dirname, '../seqnet')
+		const pythonProcess = spawn('python', [path.join(scriptPath, 'reid_frame.py')], {
 			cwd: scriptPath,
 		})
 
