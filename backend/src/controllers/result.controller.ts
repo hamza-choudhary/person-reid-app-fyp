@@ -1,13 +1,17 @@
+import { spawn } from 'child_process'
 import { NextFunction, Request, Response } from 'express'
 import mongoose from 'mongoose'
+import path from 'path'
+import Gallery from '../models/Gallery.model'
+import Query from '../models/Query.model'
 import Result from '../models/Result.model'
 import { createError } from '../utils/createError'
 
-export const getResults = async (
+export async function getResults(
 	req: Request,
 	res: Response,
 	next: NextFunction
-) => {
+) {
 	try {
 		const result = await Result.aggregate([
 			{ $match: { isDeleted: false } },
@@ -47,11 +51,11 @@ export const getResults = async (
 	}
 }
 
-export const getResult = async (
+export async function getResult(
 	req: Request,
 	res: Response,
 	next: NextFunction
-) => {
+) {
 	try {
 		const resultId = req.params.resultId as string
 		const id = new mongoose.Types.ObjectId(resultId)
@@ -93,11 +97,11 @@ export const getResult = async (
 	}
 }
 
-export const deleteResults = async (
+export async function deleteResults(
 	req: Request,
 	res: Response,
 	next: NextFunction
-) => {
+) {
 	try {
 		const resultId = req.params.resultId as string
 
@@ -121,3 +125,99 @@ export const deleteResults = async (
 		next(error)
 	}
 }
+
+export async function postResults(
+	req: Request,
+	res: Response,
+	next: NextFunction
+) {
+	try {
+		const { galleryId, queryId } = req.body as {
+			galleryId: string
+			queryId: string
+		}
+
+		if (!galleryId || !queryId) {
+			return next(createError('Gallery or Query ID is missing', 400))
+		}
+
+		const gallery = await Gallery.findOne({ _id: galleryId, isDeleted: false })
+			.select('images')
+			.exec()
+
+		const query = await Query.findOne({ _id: queryId, isDeleted: false })
+			.select('name image')
+			.exec()
+
+		if (!gallery) {
+			return next(createError('Gallery not found', 404))
+		}
+
+		if (!query) {
+			return next(createError('Query not found', 404))
+		}
+
+		const result = {
+			name: query.name,
+			queryImage: query.image,
+			galleryImages: gallery.images,
+		}
+
+		const resultImages: string[] = []
+
+		const scriptPath = path.resolve(__dirname, '../controllers')
+		const pythonProcess = spawn('python', [path.join(scriptPath, 'test.py')], {
+			cwd: scriptPath,
+		})
+
+		// Send data to Python script via stdin
+		pythonProcess.stdin.write(JSON.stringify(result))
+		pythonProcess.stdin.end()
+
+		pythonProcess.stdout.on('data', (data: Buffer) => {
+			const imageName = data.toString().trim()
+			console.log(imageName)
+			if (imageName.endsWith('.jpg') && imageName.startsWith('result')) {
+				resultImages.push(imageName)
+				//TODO: also send image to frontend and close the socket when python stop executing
+			}
+		})
+
+		//dont throw error here it also stats when there are warnings
+		pythonProcess.stderr.on('data', (data) => {
+			console.log(`${data}`)
+			//   throw new Error(data);
+		})
+
+		pythonProcess.on('close', async (code) => {
+			console.log(`python script exited with code ${code}`)
+			if (code === 0) {
+				try {
+					if (resultImages.length > 0) {
+						//FIXME:
+						console.log(`data is sent to db ${resultImages}`)
+						const result = new Result({
+							queryId,
+							galleryId,
+							images: resultImages,
+						})
+						await result.save()
+					}
+					res.status(200).json({ status: 'ok', data: resultImages })
+				} catch (error) {
+					next(error)
+				}
+			} else {
+				next(createError('Error in Python script execution', 500))
+			}
+		})
+
+		pythonProcess.on('error', (error) => {
+			next(error)
+		})
+	} catch (error) {
+		next(error)
+	}
+}
+
+//TODO: check if our reid.py always ends successfully witho code == 0

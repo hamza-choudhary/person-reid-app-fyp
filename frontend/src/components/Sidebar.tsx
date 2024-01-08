@@ -33,8 +33,8 @@ const pages: { name: string; link: string; icon: any }[] = [
   },
   { name: "About Us", link: `/about-us`, icon: <Diversity3Icon /> },
   { name: "Inference", link: `/inference`, icon: <ModelTrainingIcon /> },
-  { name: "Query", link: `/query`, icon: <QuizIcon /> },
-  { name: "Gallery", link: `/gallery`, icon: <CollectionsIcon /> },
+  { name: "Query", link: `/queries`, icon: <QuizIcon /> },
+  { name: "Gallery", link: `/galleries`, icon: <CollectionsIcon /> },
   { name: "Profile", link: `/profile`, icon: <Person2Icon /> },
   // { name: "FAQs", link: `/faqs` },
 ];

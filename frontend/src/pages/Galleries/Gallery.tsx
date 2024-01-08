@@ -88,7 +88,7 @@ export default function Gallery() {
 			setShowModal(false)
 
 			if (response.data.data.images.length === 0) {
-				navigate('/gallery')
+				navigate('/galleries')
 			}
 		} catch (error) {
 			//FIXME: handle error and success

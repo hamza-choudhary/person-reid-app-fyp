@@ -22,10 +22,10 @@ function App() {
 				<Routes>
 					<Route path="/" element={<Home />} />
 					<Route path="/galleries" element={<Galleries />} />
-					<Route path="/gallery/:galleryId" element={<Gallery />} />
-					<Route path="/query" element={<QueryPage />} />
+					<Route path="/galleries/:galleryId" element={<Gallery />} />
+					<Route path="/queries" element={<QueryPage />} />
 					<Route path="/results" element={<Results />} />
-					<Route path="/result/:resultId" element={<Result />} />
+					<Route path="/results/:resultId" element={<Result />} />
 					<Route path="/inference" element={<Inference />} />
 					<Route path="/auth" element={<Auth />} />
 					<Route path="/about-us" element={<AboutUs />} />

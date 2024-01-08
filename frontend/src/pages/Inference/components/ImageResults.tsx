@@ -32,7 +32,7 @@ const ImageResults: React.FC<ImageResultsProps> = ({
     <>
       <h1 className="text-3xl font-bold text-center">Results</h1>
       <p className="mt-2 text-center">
-        <strong>Note:</strong> Results will be refreshed after every 5 seconds
+        <strong>Note:</strong> Results speed will be vary from server to server
       </p>
 
       <div className="flex justify-center items-center my-12">
