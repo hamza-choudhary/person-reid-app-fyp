@@ -56,7 +56,26 @@ export default function InferencePage() {
   })
 
   const handleSubmit = async () => {
-    console.log(formData)
+    // console.log(formData)
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/results",
+        {
+          queryId: formData.queryId,
+          galleryId: formData.galleryId,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      console.log("Upload successful", response.data)
+    } catch (error) {
+      //FIME: handle success and error
+      console.error("Upload failed", error)
+    }
   }
 
   const handleContinue = () => {
@@ -150,14 +169,17 @@ export default function InferencePage() {
           )}
 
           {currentStep === Step.ShowHelloWorld && (
-            <ImageResults query={selectedQuery} setCurrentStep={setCurrentStep} />
+            <ImageResults
+              query={selectedQuery}
+              setCurrentStep={setCurrentStep}
+            />
           )}
 
           {currentStep !== Step.ShowHelloWorld && (
             <div className="flex justify-center items-center gap-6 mt-16">
               {currentStep !== Step.SelectQuery && (
                 <Button
-                  className="font-medium bg-[#F8B500] w-40 py-3"
+                  className="font-medium bg-yellow-400 w-40 py-3"
                   onClick={handleBack}
                 >
                   Back

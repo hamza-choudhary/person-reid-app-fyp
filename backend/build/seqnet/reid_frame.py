@@ -1,17 +1,15 @@
-from glob import glob
 import json
 import sys
-import matplotlib.pyplot as plt
 import torch
 import torch.utils.data
 from PIL import Image
 from torchvision.transforms import functional as F
-import argparse
 import cv2
 from defaults import get_default_cfg
 from models.seqnet import SeqNet
 import time
 import os
+import numpy as np
 
 torch.set_num_threads(torch.get_num_threads())
 
@@ -119,7 +117,7 @@ with torch.inference_mode():
         # print(f"\n==========similarities============\n{similarities}")
         max_similarity = torch.max(similarities)
         # Dont save results if max score is less than this threshold
-        if max_similarity > 0.45:
+        if max_similarity > 0.4:
             visual_time_start = time.time()
             visualize_result(gallery_img_tensor, detections.cpu().numpy(), similarities, gallery_img_path)
             visual_time_end = time.time()

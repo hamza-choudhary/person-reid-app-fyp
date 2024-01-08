@@ -163,7 +163,7 @@ export async function postResults(
 			galleryImages: gallery.images,
 		}
 
-		const resultImages: string[] = []
+		const resultImages = new Set<string>();
 
 		const scriptPath = path.resolve(__dirname, '../seqnet')
 		const pythonProcess = spawn('python', [path.join(scriptPath, 'reid_frame.py')], {
@@ -178,7 +178,7 @@ export async function postResults(
 			const imageName = data.toString().trim()
 			console.log(imageName)
 			if (imageName.endsWith('.jpg') && imageName.startsWith('result')) {
-				resultImages.push(imageName)
+				resultImages.add(imageName)
 				//TODO: also send image to frontend and close the socket when python stop executing
 			}
 		})
@@ -193,13 +193,13 @@ export async function postResults(
 			console.log(`python script exited with code ${code}`)
 			if (code === 0) {
 				try {
-					if (resultImages.length > 0) {
+					if (resultImages.size > 0) {
 						//FIXME:
 						console.log(`data is sent to db ${resultImages}`)
 						const result = new Result({
 							queryId,
 							galleryId,
-							images: resultImages,
+							images: [...resultImages],
 						})
 						await result.save()
 					}
