@@ -140,7 +140,7 @@ export default function Galleries() {
 								<div
 									key={gallery._id}
 									className="relative cursor-pointer"
-									onClick={() => navigate(`/gallery/${gallery._id}`)}
+									onClick={() => navigate(`/galleries/${gallery._id}`)}
 								>
 									<img
 										className="object-cover object-center w-full h-56 max-w-full rounded-lg"
@@ -172,7 +172,7 @@ export default function Galleries() {
 											<p className="text-white text-xl">
 												{gallery.size} images
 											</p>
-											<p>{date}</p>
+											<p className='text-white'>{date}</p>
 										</div>
 									</div>
 								</div>

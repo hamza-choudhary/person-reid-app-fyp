@@ -1,5 +1,6 @@
 from glob import glob
-
+import json
+import sys
 import matplotlib.pyplot as plt
 import torch
 import torch.utils.data
@@ -10,24 +11,16 @@ import cv2
 from defaults import get_default_cfg
 from models.seqnet import SeqNet
 import time
+import os
 
 torch.set_num_threads(torch.get_num_threads())
 
-# Parse command-line arguments
-def parse_args():
-    parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('query_img_filename', type=str, help='The filename of the query image.')
-    return parser.parse_args()
+input_str = sys.stdin.read()
+data = json.loads(input_str)
 
-args = parse_args()
-
-query_img_filename = args.query_img_filename
-parts = query_img_filename.split('-')  # This splits the string into a list at each dash.
-name_of_person = parts[1] 
-
-import cv2
-import numpy as np
-import torch
+query_img_filename = data['queryImage']
+name_of_person = data['name']
+gallery_images_names = data['galleryImages']
 
 def visualize_result(img_tensor, detections, similarities, img_path):
 
@@ -59,18 +52,25 @@ def visualize_result(img_tensor, detections, similarities, img_path):
         # Put the similarity score text
         cv2.putText(img, "{:.2f}".format(sim), (x1 + 5, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.75, color, 2)
 
-    result_path = img_path.replace("gallery", "results")
-    print(result_path)
-    cv2.imwrite(result_path, img)
+        # Replace 'gallery' with 'results' in the path
+        result_path = img_path.replace("gallery", "results")
+        # Extract the image name from the path and prepend 'result-' to the image name
+        image_name = img_path.split('/')[-1]  # Get the last part of the path
+        result_image_name = "result-" + image_name
+        # Modify result_path to include the new image name
+        result_path = result_path.replace(image_name, result_image_name)
+        # Save the image
+        cv2.imwrite(result_path, img)
+        print(result_image_name, flush=True)
 
 # //! Configuration
 cfg = get_default_cfg()
 cfg.merge_from_file("./exp_cuhk/config.yaml")
 cfg.freeze()
 
-device = "cuda"
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
-print("creating model")
+print("creating model", flush=True)
 model = SeqNet(cfg)
 
 #Loading modal
@@ -87,7 +87,12 @@ query_target = [{"boxes": torch.tensor([[0, 0, 466, 943]]).to(device)}]
 
 # Loading Gallery Images
 gallery_img_tensors = []
-gallery_img_paths = sorted(glob("../uploads/gallery/gallery-*.jpg"))  # Make sure this is defined
+gallery_folder_path = "../uploads/gallery/"
+gallery_img_paths = [
+    os.path.join(gallery_folder_path, img_name)
+    for img_name in gallery_images_names
+    if os.path.exists(os.path.join(gallery_folder_path, img_name))
+]
 
 for gallery_img_path in gallery_img_paths:
     image = Image.open(gallery_img_path).convert("RGB")
@@ -100,7 +105,7 @@ with torch.inference_mode():
     query_feat = model(query_img, query_target)[0] # [big 2d matrix of features nos]
     for gallery_img_tensor, gallery_img_path in zip(gallery_img_tensors, gallery_img_paths):
         start_time_single = time.time()
-        print(f"Processing {gallery_img_path}")
+        # print(f"Processing {gallery_img_path}", flush=True)
         gallery_img = [gallery_img_tensor]
         gallery_output = model(gallery_img)[0]
         detections = gallery_output["boxes"]
@@ -118,11 +123,11 @@ with torch.inference_mode():
             visual_time_start = time.time()
             visualize_result(gallery_img_tensor, detections.cpu().numpy(), similarities, gallery_img_path)
             visual_time_end = time.time()
-            print(f"Time taken for a single visualization: {visual_time_end - visual_time_start:.2f} seconds")
+            print(f"Time taken for a single visualization: {visual_time_end - visual_time_start:.2f} seconds", flush=True)
 
         end_time_single = time.time()
-        print(f"Time taken for a single prediction: {end_time_single - start_time_single:.2f} seconds")
+        print(f"Time taken for a single prediction: {end_time_single - start_time_single:.2f} seconds", flush=True)
 
 end_time_all = time.time()
-print(f"Time taken for all predictions: {end_time_all - start_time_all:.2f} seconds")
+print(f"Time taken for all predictions: {end_time_all - start_time_all:.2f} seconds", flush=True)
 

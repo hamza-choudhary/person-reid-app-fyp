@@ -23,7 +23,7 @@ const HomeMain = () => {
       </Typography>
       <Button
         sx={{ p: "10px 130px !important" }}
-        onClick={() => navigate("/gallery")}
+        onClick={() => navigate("/galleries")}
       >
         Get Started
       </Button>

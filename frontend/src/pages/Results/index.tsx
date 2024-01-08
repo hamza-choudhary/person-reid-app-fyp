@@ -92,7 +92,7 @@ export default function Results() {
 								<div
 									key={result._id}
 									className="relative cursor-pointer"
-									onClick={() => navigate(`/result/${result._id}`)}
+									onClick={() => navigate(`/results/${result._id}`)}
 								>
 									<img
 										className="object-cover object-center w-full h-56 max-w-full rounded-lg"
