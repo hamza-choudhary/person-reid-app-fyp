@@ -1,67 +1,64 @@
-import bodyParser from 'body-parser'
-import cors from 'cors'
-import 'dotenv/config'
-import express, {
-	ErrorRequestHandler,
-	NextFunction,
-	Request,
-	Response,
-} from 'express'
+import http from 'http'
+import { Server as SocketIOServer } from 'socket.io'
+import express, { Request, Response, NextFunction } from 'express'
 import path from 'path'
+import 'dotenv/config'
+import cors from 'cors'
 import { authRoutes } from './routes/auth.routes'
-import './utils/database'
 import { galleryRoutes } from './routes/gallery.routes'
 import { queryRoutes } from './routes/query.routes'
 import { resultRoutes } from './routes/results.routes'
+import './utils/database'
+import { initSocket } from './socket/socket' // Import the Socket.IO module
 
 const app = express()
-app.use(cors())
-app.use(bodyParser.json())
+const httpServer = new http.Server(app)
+// Initialize Socket.IO
+initSocket(httpServer)
 
-type CustomError = Error & {
-	status?: number
-	messages?: string
+app.use(cors({
+  origin: 'http://localhost:5173', // Frontend origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Adjust methods as per your requirements
+  credentials: true // If your frontend needs to send cookies
+}));
+
+// app.use(cors())
+app.use(express.json()) // Replace bodyParser with express.json()
+
+// Custom error type
+class CustomError extends Error {
+  status?: number
 }
 
-app.use('/uploads/query', express.static(path.join(__dirname, 'uploads/query')))
-app.use(
-	'/uploads/gallery',
-	express.static(path.join(__dirname, 'uploads/gallery'))
-)
-app.use(
-	'/uploads/results',
-	express.static(path.join(__dirname, 'uploads/results'))
-)
+// Static file routes
+const uploadsPath = path.join(__dirname, 'uploads')
+app.use('/uploads/query', express.static(path.join(uploadsPath, 'query')))
+app.use('/uploads/gallery', express.static(path.join(uploadsPath, 'gallery')))
+app.use('/uploads/results', express.static(path.join(uploadsPath, 'results')))
 
+// Security headers
 app.use((req, res, next) => {
-	res.setHeader(
-		'Content-Security-Policy',
-		"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
-	)
-	next()
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+  )
+  next()
 })
 
-app.use('/api', galleryRoutes)
-app.use('/api', queryRoutes)
-app.use('/api', resultRoutes)
+// API routes
+app.use('/api', galleryRoutes, queryRoutes, resultRoutes)
 app.use('/auth', authRoutes)
 
-//? Express Error Middleware
+// Error handling middleware
 app.use(
-	(
-		error: CustomError,
-		req: Request,
-		res: Response,
-		next: NextFunction
-	): void => {
-		console.log('in express error middleware', error, 'in the end')
-		const status = error.status || 500
-		const message = error.message || 'server internal error'
-
-		res.status(status).json({ status: 'error', message: message })
-	}
+  (error: CustomError, req: Request, res: Response, next: NextFunction) => {
+    const status = error.status || 500
+    const message = error.message || 'Server internal error'
+    res.status(status).json({ status: 'error', message })
+  }
 )
 
-app.listen(process.env.PORT, () =>
-	console.log(`server is running on port ${process.env.PORT}`)
-)
+const PORT = process.env.PORT || 8080
+httpServer.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`)
+})
