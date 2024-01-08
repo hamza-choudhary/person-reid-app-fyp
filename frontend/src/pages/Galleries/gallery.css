@@ -1,0 +1,36 @@
+.modal-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80%;
+  height: 80%;
+  transition: transform 0.3s ease;
+}
+
+.modal-prev,
+.modal-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(255, 255, 255, 0.7);
+  border: none;
+  padding: 1rem;
+  cursor: pointer;
+  font-size: 2rem;
+}
+
+.modal-prev {
+  left: 0;
+}
+
+.modal-next {
+  right: 0;
+}
+
+img.transition-opacity {
+  transition: opacity 0.3s ease;
+}
