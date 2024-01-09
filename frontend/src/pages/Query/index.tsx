@@ -4,6 +4,7 @@ import Modal from '../../components/Modal/Modal'
 import ResponsiveDrawer from '../../components/Sidebar'
 import Button from '../../components/UI/Button'
 import DragAndDrop from '../../components/UI/DragAndDrop'
+import Carosal from '../../components/Carosal/Carosal'
 
 //FIXME: add modal for description
 
@@ -26,6 +27,14 @@ export default function QueryPage() {
 		name: '',
 		description: '',
 	})
+
+	const [showCarosal, setShowCarosal] = useState(false)
+  const [imageIndex, setImageIndex] = useState(0)
+
+  const openCarosal = (index: number) => {
+    setImageIndex(index)
+    setShowCarosal(true)
+  }
 
 	const handleChange = (
 		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -146,7 +155,7 @@ export default function QueryPage() {
 				<div className="columns-1 md:gap-2 sm:columns-2 sm:gap-8 md:columns-3 lg:columns-4 ">
 					{queries &&
 						queries.map((query, index) => (
-							<div key={query._id} className="relative cursor-pointer">
+							<div key={query._id} className="relative cursor-pointer" onClick={()=>openCarosal(index)}>
 								<img
 									className={`object-top object-cover rounded-sm max-h-[30rem] ${
 										index !== 0 ? 'mt-2' : ''
@@ -188,7 +197,7 @@ export default function QueryPage() {
           setShowCarosal={setShowCarosal}
           firstIndex={imageIndex}
           imageType="query"
-          images={}
+          images={queries}
         />
 				<Modal
 					showModal={showAddQueryModal}
