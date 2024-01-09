@@ -8,7 +8,7 @@ type EmployeeType = {
   role: string
   cnic: string
   phone: string
-  email?: string
+  email: string
 }
 
 type EmployeeTableItem = {
@@ -21,12 +21,12 @@ type EmployeeTableItem = {
 
 interface EditEmployeeProps {
   setEmployees: React.Dispatch<React.SetStateAction<EmployeeTableItem[]>>
-  data: EmployeeType | undefined
+  data: EmployeeType
 }
 
 const EditEmployee: React.FC<EditEmployeeProps> = ({ setEmployees, data }) => {
   const [showModal, setShowModal] = useState(false)
-
+// console.log(data)
   return (
     <>
       <Button onClick={() => setShowModal(true)}>Edit</Button>

@@ -33,46 +33,71 @@ const DeleteEmployee: React.FC<DeleteEmployeeProps> = ({
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
+    const API_URL = 'http://localhost:8080/auth/users'
+
     try {
-      const response = await axios.delete(
-        `http://localhost:8080/api/users/${data?._id}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+      const response = await axios.delete(`${API_URL}/${data?._id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.data.status !== 'ok') {
+        throw new Error('user is not deleted!')
+      }
+      setEmployees((prevEmployees) =>
+        prevEmployees.filter((emp) => emp.data._id !== data?._id)
       )
-      if (response.data.status !== 'ok') {
-        throw new Error('request is not sending to api!')
-      }
-
-      const result = response.data
-
-      if (response.data.status !== 'ok') {
-        alert('Employee deleted:')
-
-        //?handle add case
-        setEmployees((prevEmployees) => {
-          // Filter out the employee ?Deletion here
-          const filteredEmployees = prevEmployees.filter(
-            (employee) => employee.data._id !== result.data._id
-          )
-
-          // Update the 'sr. no' for each remaining employee
-          return filteredEmployees.map((employee, index) => ({
-            ...employee,
-            sr: index + 1, // Assuming 'sr. no' should start from 1
-          }))
-        })
-
-        setShowModal(false)
-      } else {
-        console.error('Failed to delet employee:', result)
-      }
+      setShowModal(false)
     } catch (error) {
+      //FIXME: handle errors
       console.error('Network error:', error)
     }
   }
+
+  // const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault()
+
+  //   try {
+  //     const response = await axios.delete(
+  //       `http://localhost:8080/auth/users/${data?._id}`,
+  //       {
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //       }
+  //     )
+  //     if (response.data.status !== 'ok') {
+  //       throw new Error('request is not sending to api!')
+  //     }
+
+  //     const result = response.data
+
+  //     if (result.status !== 'ok') {
+  //       alert('Employee deleted:')
+
+  //       //?handle add case
+  //       setEmployees((prevEmployees) => {
+  //         // Filter out the employee ?Deletion here
+  //         const filteredEmployees = prevEmployees.filter(
+  //           (employee) => employee.data._id !== result.data._id
+  //         )
+
+  //         // Update the 'sr. no' for each remaining employee
+  //         return filteredEmployees.map((employee, index) => ({
+  //           ...employee,
+  //           sr: index + 1, // Assuming 'sr. no' should start from 1
+  //         }))
+  //       })
+
+  //       setShowModal(false)
+  //     } else {
+  //       console.error('Failed to delet employee:', result)
+  //     }
+  //   } catch (error) {
+  //     console.error('Network error:', error)
+  //   }
+  // }
 
   return (
     <>

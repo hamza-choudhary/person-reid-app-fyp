@@ -13,7 +13,7 @@ export async function getUsers(
     const result = await User.find({
       isDeleted: false,
       role: { $ne: 'admin' },
-    }).select('_id name email role cnic')
+    }).select('_id name email role cnic phone')
 
     res.status(200).json({ status: 'ok', data: result })
   } catch (error) {
@@ -66,14 +66,14 @@ export async function updateUser(
   next: NextFunction
 ) {
   try {
-    const { id, name, password, phone, cnic } = req.body
+    const { _id, name, password, phone, cnic } = req.body
 
     if (!name && !password && !phone && !cnic) {
       return next(createError('At least one field is mandatory', 400))
     }
 
     const updatedUser = await User.findOneAndUpdate(
-      { _id: id, isDeleted: { $ne: true } },
+      { _id: _id, isDeleted: { $ne: true } },
       { name, password, phone, cnic },
       { new: true, runValidators: true }
     ).select('-password -isDeleted -createdAt -updatedAt')

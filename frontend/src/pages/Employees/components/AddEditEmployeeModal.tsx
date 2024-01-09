@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Modal from '../../../components/Modal/Modal'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 
 type EmployeeType = {
   _id: string
@@ -8,7 +8,7 @@ type EmployeeType = {
   role: string
   cnic: string
   phone: string
-  email?: string
+  email: string
 }
 
 type EmployeeTableItem = {
@@ -17,6 +17,15 @@ type EmployeeTableItem = {
   role: string
   cnic: string
   data: EmployeeType
+}
+
+interface FormData {
+  name: string
+  email: string
+  password: string
+  phone: string
+  role: string
+  cnic: string
 }
 
 interface AddEditEmployeeModalProps {
@@ -32,8 +41,7 @@ const AddEditEmployeeModal: React.FC<AddEditEmployeeModalProps> = ({
   setEmployees,
   data = undefined,
 }) => {
-
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     password: '',
@@ -46,7 +54,7 @@ const AddEditEmployeeModal: React.FC<AddEditEmployeeModalProps> = ({
     if (data) {
       setFormData({
         name: data.name,
-        email: data.email || '',
+        email: data.email,
         password: '',
         phone: data.phone,
         role: data.role,
@@ -68,112 +76,212 @@ const AddEditEmployeeModal: React.FC<AddEditEmployeeModalProps> = ({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
+    const employeeData = {
+      _id: data?._id || '',
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      phone: formData.phone,
+      role: formData.role,
+      cnic: formData.cnic,
+    }
+
     try {
-      let method = 'POST'
-      let employeeData = {
-        ...formData,
-        userId: '',
+      console.log(data)
+      const response = await submitEmployeeData(employeeData, !!data)
+      console.log(response)
+      handleResponse(response)
+    } catch (error) {
+      console.error('Network error:', error)
+    }
+
+    //functions
+    async function submitEmployeeData(
+      employeeData: EmployeeType,
+      isEdit: boolean
+    ) {
+      const url = 'http://localhost:8080/auth/users'
+      const config = {
+        headers: { 'Content-Type': 'application/json' },
       }
-      if (data) {
-        method = 'PUT'
-        employeeData = {
-          ...formData,
-          userId: data._id,
-        }
+      const method = isEdit ? 'put' : 'post'
+      return axios[method](url, employeeData, config)
+    }
+
+    function handleResponse(response: AxiosResponse) {
+      if (response.data.status !== 'ok') {
+        console.error('Failed to add/edit employee:')
+        return
       }
 
-      let response
-      if (method === 'POST') {
-        response = await axios.post(
-          'http://localhost:8080/api/auth/users',
-          {
-            ...employeeData,
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        )
-      } else {
-        response = await axios.put(
-          'http://localhost:8080/api/auth/users',
-          {
-            ...employeeData,
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        )
-      }
+      alert('Employee processed successfully')
+      setShowModal(false)
+      const result = response.data.data as EmployeeType
 
-      if (response.data.status === 'ok') {
-        alert('Employee added:')
-        // Handle successful response
-        setShowModal(false)
-        const result = response.data.data as EmployeeType
-        //?handle edit case
-        if (data) {
-          setEmployees((prevEmployees: EmployeeTableItem[]) => {
-            return prevEmployees.map((employee) => {
-              if (employee.data._id === data._id) {
-                return {
+      updateEmployees(result, !!data)
+      resetFormData(!!data, result)
+    }
+
+    function updateEmployees(result: EmployeeType, isEdit: boolean) {
+      setEmployees((prevEmployees) => {
+        if (isEdit && data) {
+          return prevEmployees.map((employee) =>
+            employee.data._id === data._id
+              ? {
                   ...employee,
                   name: result.name,
                   role: result.role,
                   cnic: result.cnic,
-                  data: {
-                    ...result,
-                  },
+                  data: { ...result },
                 }
-              }
-              return employee
-            })
-          })
-
-          setFormData({
-            name: result.name,
-            email: result.email || '',
-            password: '',
-            phone: result.phone,
-            role: result.role,
-            cnic: result.cnic,
-          })
-
-          return
+              : employee
+          )
         }
-
-        //?handle add case
-        setEmployees((prevEmployees: EmployeeTableItem[]) => [
+        return [
           ...prevEmployees,
           {
             sr: prevEmployees.length + 1,
             name: result.name,
             role: result.role,
             cnic: result.cnic,
-            data: {
-              ...result,
-            },
+            data: { ...result },
           },
-        ])
+        ]
+      })
+    }
 
-        setFormData({
-          name: '',
-          email: '',
-          password: '',
-          phone: '',
-          role: '',
-          cnic: '',
-        })
-      } else {
-        console.error('Failed to add employee:')
-      }
-    } catch (error) {
-      console.error('Network error:', error)
+    function resetFormData(isEdit: boolean, result: EmployeeType) {
+      setFormData(
+        isEdit
+          ? {
+              name: result.name,
+              email: result.email,
+              password: '',
+              phone: result.phone,
+              role: result.role,
+              cnic: result.cnic,
+            }
+          : {
+              name: '',
+              email: '',
+              password: '',
+              phone: '',
+              role: '',
+              cnic: '',
+            }
+      )
     }
   }
+
+  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault()
+
+  //   try {
+  //     let method = 'POST'
+  //     let employeeData = {
+  //       ...formData,
+  //       userId: '',
+  //     }
+  //     if (data) {
+  //       method = 'PUT'
+  //       employeeData = {
+  //         ...formData,
+  //         userId: data._id,
+  //       }
+  //     }
+
+  //     let response
+  //     if (method === 'POST') {
+  //       response = await axios.post(
+  //         'http://localhost:8080/auth/users',
+  //         {
+  //           ...employeeData,
+  //         },
+  //         {
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //           },
+  //         }
+  //       )
+  //     } else {
+  //       response = await axios.put(
+  //         'http://localhost:8080/auth/users',
+  //         {
+  //           ...employeeData,
+  //         },
+  //         {
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //           },
+  //         }
+  //       )
+  //     }
+
+  //     if (response.data.status === 'ok') {
+  //       alert('Employee added:')
+  //       // Handle successful response
+  //       setShowModal(false)
+  //       const result = response.data.data as EmployeeType
+  //       //?handle edit case
+  //       if (data) {
+  //         setEmployees((prevEmployees: EmployeeTableItem[]) => {
+  //           return prevEmployees.map((employee) => {
+  //             if (employee.data._id === data._id) {
+  //               return {
+  //                 ...employee,
+  //                 name: result.name,
+  //                 role: result.role,
+  //                 cnic: result.cnic,
+  //                 data: {
+  //                   ...result,
+  //                 },
+  //               }
+  //             }
+  //             return employee
+  //           })
+  //         })
+
+  //         setFormData({
+  //           name: result.name,
+  //           email: result.email,
+  //           password: '',
+  //           phone: result.phone,
+  //           role: result.role,
+  //           cnic: result.cnic,
+  //         })
+
+  //         return
+  //       }
+
+  //       //?handle add case
+  //       setEmployees((prevEmployees: EmployeeTableItem[]) => [
+  //         ...prevEmployees,
+  //         {
+  //           sr: prevEmployees.length + 1,
+  //           name: result.name,
+  //           role: result.role,
+  //           cnic: result.cnic,
+  //           data: {
+  //             ...result,
+  //           },
+  //         },
+  //       ])
+
+  //       setFormData({
+  //         name: '',
+  //         email: '',
+  //         password: '',
+  //         phone: '',
+  //         role: '',
+  //         cnic: '',
+  //       })
+  //     } else {
+  //       console.error('Failed to add employee:')
+  //     }
+  //   } catch (error) {
+  //     console.error('Network error:', error)
+  //   }
+  // }
 
   return (
     <Modal showModal={showModal} setShowModal={setShowModal}>
@@ -245,6 +353,7 @@ const AddEditEmployeeModal: React.FC<AddEditEmployeeModalProps> = ({
             onChange={handleChange}
             className="block w-full bg-transparent border border-gray rounded-md"
           >
+            {/* FIXME: define roles and spellings consistency */}
             <option value="">Select role</option>
             <option value="admin">Admin</option>
             <option value="gaurd">Gaurd</option>
