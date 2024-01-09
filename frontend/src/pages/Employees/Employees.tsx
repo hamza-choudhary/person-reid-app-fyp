@@ -57,15 +57,15 @@ export default function Employees() {
     <>
       <ResponsiveDrawer className="p-4">
         <div className="w-full">
-          <div className="flex justify-between">
-            <h1 className="font-bold text-xl">Employees</h1>
-            <Button type="button" onClick={() => setShowAddEmpModal(true)}>
+          <div className="mt-5 flex justify-between items-center">
+            <h1 className="font-bold text-3xl">Employees</h1>
+            <Button className='py-3 px-5' type="button" onClick={() => setShowAddEmpModal(true)}>
               Add Employee
             </Button>
           </div>
-          <div className="my-5 flex items-center border-2 rounded-lg w-80">
+          {/* <div className="my-5 flex items-center border-2 rounded-lg w-80"> */}
             {/* //FIXME: work on search bar with onchange change data array hardly 5 mint task */}
-            <input
+            {/* <input
               type="text"
               placeholder="Search Employee"
               className="p-2 pl-4 w-full rounded-lg rounded-r-none"
@@ -87,7 +87,7 @@ export default function Employees() {
                 />
               </svg>
             </span>
-          </div>
+          </div> */}
           <Table
             columns={['Sr.', 'Name', 'Designation', 'CNIC']}
             data={employees}

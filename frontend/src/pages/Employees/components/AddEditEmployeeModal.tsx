@@ -50,6 +50,8 @@ const AddEditEmployeeModal: React.FC<AddEditEmployeeModalProps> = ({
     cnic: '',
   })
 
+  const [isEditMode, setIsEditMode] = useState(false)
+
   useEffect(() => {
     if (data) {
       setFormData({
@@ -60,6 +62,7 @@ const AddEditEmployeeModal: React.FC<AddEditEmployeeModalProps> = ({
         role: data.role,
         cnic: data.cnic,
       })
+      setIsEditMode(true)
     }
   }, [data])
 
@@ -88,7 +91,7 @@ const AddEditEmployeeModal: React.FC<AddEditEmployeeModalProps> = ({
 
     try {
       console.log(data)
-      const response = await submitEmployeeData(employeeData, !!data)
+      const response = await submitEmployeeData(employeeData)
       console.log(response)
       handleResponse(response)
     } catch (error) {
@@ -96,15 +99,12 @@ const AddEditEmployeeModal: React.FC<AddEditEmployeeModalProps> = ({
     }
 
     //functions
-    async function submitEmployeeData(
-      employeeData: EmployeeType,
-      isEdit: boolean
-    ) {
+    async function submitEmployeeData(employeeData: EmployeeType) {
       const url = 'http://localhost:8080/auth/users'
       const config = {
         headers: { 'Content-Type': 'application/json' },
       }
-      const method = isEdit ? 'put' : 'post'
+      const method = isEditMode ? 'put' : 'post'
       return axios[method](url, employeeData, config)
     }
 
@@ -118,13 +118,13 @@ const AddEditEmployeeModal: React.FC<AddEditEmployeeModalProps> = ({
       setShowModal(false)
       const result = response.data.data as EmployeeType
 
-      updateEmployees(result, !!data)
-      resetFormData(!!data, result)
+      updateEmployees(result)
+      resetFormData(result)
     }
 
-    function updateEmployees(result: EmployeeType, isEdit: boolean) {
+    function updateEmployees(result: EmployeeType) {
       setEmployees((prevEmployees) => {
-        if (isEdit && data) {
+        if (isEditMode && data) {
           return prevEmployees.map((employee) =>
             employee.data._id === data._id
               ? {
@@ -150,9 +150,9 @@ const AddEditEmployeeModal: React.FC<AddEditEmployeeModalProps> = ({
       })
     }
 
-    function resetFormData(isEdit: boolean, result: EmployeeType) {
+    function resetFormData(result: EmployeeType) {
       setFormData(
-        isEdit
+        isEditMode
           ? {
               name: result.name,
               email: result.email,
@@ -287,10 +287,12 @@ const AddEditEmployeeModal: React.FC<AddEditEmployeeModalProps> = ({
     <Modal showModal={showModal} setShowModal={setShowModal}>
       <form onSubmit={handleSubmit} method="POST" className="lg:w-[40rem] p-6">
         <h1 className="font-bold text-3xl text-center">
-          {data ? 'Edit Employee' : 'Add New Employee'}
+          {isEditMode ? 'Edit Employee' : 'Add New Employee'}
         </h1>
         <div>
-          <label className="inline-block my-2 font-medium">Name</label>
+          <label className="inline-block my-2 font-medium">
+            Name <span className="text-red-700 font-bold">*</span>
+          </label>
           <input
             type="text"
             name="name"
@@ -301,7 +303,9 @@ const AddEditEmployeeModal: React.FC<AddEditEmployeeModalProps> = ({
           />
         </div>
         <div>
-          <label className="inline-block my-2 font-medium">Email</label>
+          <label className="inline-block my-2 font-medium">
+            Email <span className="text-red-700 font-bold">*</span>
+          </label>
           <input
             type="email"
             name="email"
@@ -312,7 +316,9 @@ const AddEditEmployeeModal: React.FC<AddEditEmployeeModalProps> = ({
           />
         </div>
         <div>
-          <label className="inline-block my-2 font-medium">Password</label>
+          <label className="inline-block my-2 font-medium">
+            Password <span className="text-red-700 font-bold">*</span>
+          </label>
           <input
             type="password"
             name="password"
@@ -324,7 +330,9 @@ const AddEditEmployeeModal: React.FC<AddEditEmployeeModalProps> = ({
           />
         </div>
         <div>
-          <label className="inline-block my-2 font-medium">Phone</label>
+          <label className="inline-block my-2 font-medium">
+            Phone <span className="text-red-700 font-bold">*</span>
+          </label>
           <input
             type="tel"
             name="phone"
@@ -335,7 +343,9 @@ const AddEditEmployeeModal: React.FC<AddEditEmployeeModalProps> = ({
           />
         </div>
         <div>
-          <label className="inline-block my-2 font-medium">CNIC</label>
+          <label className="inline-block my-2 font-medium">
+            CNIC <span className="text-red-700 font-bold">*</span>
+          </label>
           <input
             type="text"
             name="cnic"
@@ -346,7 +356,9 @@ const AddEditEmployeeModal: React.FC<AddEditEmployeeModalProps> = ({
           />
         </div>
         <div>
-          <label className="inline-block my-2 font-medium">Role</label>
+          <label className="inline-block my-2 font-medium">
+            Role <span className="text-red-700 font-bold">*</span>
+          </label>
           <select
             name="role"
             value={formData.role}

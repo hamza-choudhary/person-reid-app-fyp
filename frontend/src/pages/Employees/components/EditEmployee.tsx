@@ -26,10 +26,12 @@ interface EditEmployeeProps {
 
 const EditEmployee: React.FC<EditEmployeeProps> = ({ setEmployees, data }) => {
   const [showModal, setShowModal] = useState(false)
-// console.log(data)
+  // console.log(data)
   return (
     <>
-      <Button onClick={() => setShowModal(true)}>Edit</Button>
+      <Button className="bg-yellow-400" onClick={() => setShowModal(true)}>
+        Edit
+      </Button>
       <AddEditEmployeeModal
         setEmployees={setEmployees}
         showModal={showModal}
