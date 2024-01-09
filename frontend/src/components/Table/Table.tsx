@@ -178,7 +178,7 @@ function TableRow({
 						<button
 							className="px-3 py-2 text-white font-semibold rounded-full bg-primary"
 							type="button"
-							onClick={(e) => setToggleRow((prev) => !prev)}
+							onClick={() => setToggleRow((prev) => !prev)}
 						>
 							{toggleRow ? 'Close' : 'View Detail'}
 						</button>

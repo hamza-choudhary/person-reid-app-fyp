@@ -23,6 +23,11 @@ const userSchema = new Schema(
 		},
 		role: {
 			type: String,
+			required: true,
+		},
+		cnic: {
+			type: String,
+			required: true,
 		},
 		isDeleted: {
 			type: Boolean,
