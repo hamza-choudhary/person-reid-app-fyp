@@ -4,6 +4,37 @@ import jwt from 'jsonwebtoken'
 import User from '../models/User.model'
 import { createError } from '../utils/createError'
 
+type AuthRequest = Request & {
+	userId?: string
+}
+export async function getUser(
+	req: AuthRequest,
+	res: Response,
+	next: NextFunction
+) {
+	try {
+		const userId = req.userId
+
+		if (!userId) {
+			return res
+				.status(400)
+				.send({ message: 'User ID not provided in request' })
+		}
+
+		const result = await User.findById(userId).select(
+			'_id name email role cnic phone'
+		)
+
+		if (!result) {
+      return res.status(404).send({ message: 'User not found' });
+    }
+
+		res.status(200).json({ status: 'ok', data: result })
+	} catch (error) {
+		next(error)
+	}
+}
+
 export async function getUsers(
 	req: Request,
 	res: Response,
@@ -66,17 +97,26 @@ export async function updateUser(
 	next: NextFunction
 ) {
 	try {
-		const { _id, name, password, phone, cnic } = req.body
+		type RequestBody = {
+			_id: string
+			name: string | null
+			password: string | null
+			phone: string | null
+			role: string | null
+			cnic: string | null
+		}
 
-		if (!name && !password && !phone && !cnic) {
+		const { _id, name, password, phone, role, cnic }: RequestBody = req.body
+
+		if (!name && !password && !phone && !cnic && !role) {
 			return next(createError('At least one field is mandatory', 400))
 		}
 
 		const updatedUser = await User.findOneAndUpdate(
-			{ _id: _id, isDeleted: { $ne: true } },
-			{ name, password, phone, cnic },
-			{ new: true, runValidators: true }
-		).select('-password -isDeleted -createdAt -updatedAt')
+			{ _id: _id, isDeleted: false },
+			{ name, password, phone, role, cnic },
+			{ new: true }
+		).select('_id name email phone cnic role')
 
 		if (!updatedUser) {
 			return next(createError('User not found', 404))
@@ -174,7 +214,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 		const { email, password }: RequestBody = req.body
 
 		const user = await User.findOne({ email: email }).select(
-			'-isDeleted -createdAt -updatedAt'
+			'_id name email password phone cnic role'
 		)
 
 		if (!user || user.isDeleted) {
@@ -194,16 +234,13 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 			throw new Error('JWT_KEY is not defined')
 		}
 
-		const token = jwt.sign({ id: user._id }, process.env.JWT_KEY as string, {
+		const token = jwt.sign({ _id: user._id }, process.env.JWT_KEY as string, {
 			expiresIn: '60d',
 		})
 
 		const { password: pswd, ...info } = user.toObject()
 
-		res
-			.cookie('access_token', token, { httpOnly: true })
-			.status(200)
-			.json({ data: info })
+		res.status(200).json({ status: 'ok', data: info, access_token: token })
 	} catch (error) {
 		next(error)
 	}
@@ -213,5 +250,5 @@ export async function logout(req: Request, res: Response) {
 	res
 		.clearCookie('access_token', { sameSite: 'none', secure: true })
 		.status(200)
-		.json({ data: 'logged out successfully' })
+		.json({ status: 'ok', data: 'logged out successfully' })
 }

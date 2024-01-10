@@ -1,122 +1,74 @@
-import React from "react";
-import { Box, Stack, Button, Grid, Typography, TextField } from "@mui/material";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import { useNavigate } from "react-router-dom";
-// import { toast } from "react-toastify";
-
-const initialState: { username: string; password: string; role: string } = {
-  username: "",
-  password: "",
-  role: "",
-};
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import Logo from '../../assets/logo.png'
+import { useAuth } from '../../hooks/useAuth'
+import Button from '../UI/Button'
 
 const LoginForm = () => {
-  const [form, setForm] = React.useState(initialState);
-  const navigate = useNavigate();
+	const [formData, setFormData] = useState({ email: '', password: '' })
+	const navigate = useNavigate()
 
-  const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+	const auth = useAuth()
 
-  const handleRoleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const { name, value } = e.target
+		setFormData((prevData) => ({
+			...prevData,
+			[name]: value,
+		}))
+	}
 
-  const submitHandler = (e: any) => {
-    if (form.username && form.password) {
-      console.log(form);
-      navigate("/");
-    } else {
-      e.preventDefault();
-      //   return toast.error("All Fields are Mandatory");
-    }
-  };
+	const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault()
+		if (auth) {
+			try {
+				await auth.login(formData.email, formData.password)
+				navigate('/home')
+			} catch (error) {
+				console.log(error)
+				//FIXME: handle
+			}
+		}
+	}
 
-  return (
-    <Box className="loginFormMain">
-      <form action="" onSubmit={submitHandler}>
-        {/* <Stack spacing={{ lg: 2, xl: 4 }}> */}
-        <input
-          placeholder="Username"
-          value={form.username}
-          name="username"
-          type="text"
-          onChange={changeHandler}
-          style={{
-            padding: "20px",
-            borderRadius: "10px",
-            border: "1px solid rgba(255,255,255,0.5)",
-            outline: "none",
-            background: "transparent",
-            color: "rgba(255,255,255,0.5)",
-            width: "100%",
-            marginBottom: "15px",
-          }}
-        />
-        <input
-          placeholder="Password"
-          value={form.password}
-          name="password"
-          type="password"
-          onChange={changeHandler}
-          style={{
-            padding: "20px",
-            borderRadius: "10px",
-            border: "1px solid rgba(255,255,255,0.5)",
-            outline: "none",
-            background: "transparent",
-            color: "rgba(255,255,255,0.5)",
-            width: "100%",
-            marginBottom: "15px",
-          }}
-        />
-        {/* <Grid container sx={{ gap: "20px" }}>
-          <Grid item sx={{ padding: "5px" }}>
-            <Typography paragraph sx={{ color: "rgba(255,255,255,0.5)" }}>
-              Login as:
-            </Typography>
-          </Grid>
-          <Grid item>
-            <RadioGroup
-              aria-labelledby="demo-controlled-radio-buttons-group"
-              name="role"
-              value={form.role}
-              onChange={handleRoleChange}
-              sx={{ color: "rgba(255,255,255,0.5)" }}
-              className="loginFormRadio"
-            >
-              <FormControlLabel
-                value="admin"
-                control={<Radio />}
-                label="Admin"
-              />
-              <FormControlLabel
-                value="security-guard"
-                control={<Radio />}
-                label="Security Guard"
-              />
-            </RadioGroup>
-          </Grid>
-        </Grid> */}
-        <Box sx={{ textAlign: "center" }}>
-          <Button
-            variant="contained"
-            type="submit"
-            sx={{
-              background: "#000",
-              //   padding: { lg: "15px 40px", xl: "20px 50px" },
-              //   borderRadius: "10px",
-            }}
-          >
-            Submit
-          </Button>
-        </Box>
-        {/* </Stack> */}
-      </form>
-    </Box>
-  );
-};
+	return (
+		<form onSubmit={submitHandler} method="POST" className="p-6 w-[25rem] bg-white shadow-lg">
+			<div className='flex justify-around items-center'>
 
-export default LoginForm;
+      <img
+				src={Logo}
+				alt="logo"
+				className="object-contain object-center w-28 h-28"
+			/>
+      </div>
+			<div>
+				<label className="inline-block my-2 font-medium">Email</label>
+				<input
+					type="email"
+					name="email"
+					value={formData.email}
+					onChange={handleChange}
+					className="block w-full bg-transparent p-2 border border-gray rounded-md"
+					required
+				/>
+			</div>
+			<div>
+				<label className="inline-block my-2 font-medium">Password</label>
+				<input
+					type="password"
+					name="password"
+					minLength={3}
+					value={formData.password}
+					onChange={handleChange}
+					className="block w-full bg-transparent p-2 border border-gray rounded-md"
+					required
+				/>
+			</div>
+			<div>
+				<Button className="w-full p-2 my-6">Login</Button>
+			</div>
+		</form>
+	)
+}
+
+export default LoginForm

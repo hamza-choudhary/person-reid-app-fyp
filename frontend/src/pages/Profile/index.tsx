@@ -52,10 +52,10 @@ export default function ProfilePage() {
 		e.preventDefault()
 
 		try {
-			const result = await axios.post(
+			const result = await axios.put(
 				'http://localhost:8080/auth/users',
 				{
-					_id: '123', //FIXME: should comes from auth context
+					_id: '659d64a1f8fe7f56b299a72f', //FIXME: should comes from auth context
 					name: profileFormData.name,
 					phone: profileFormData.phone,
 					cnic: profileFormData.cnic,
