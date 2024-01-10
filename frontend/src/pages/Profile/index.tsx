@@ -53,9 +53,9 @@ export default function ProfilePage() {
 
 		try {
 			const result = await axios.post(
-				'http://localhost:8080/auth/users/profile',
+				'http://localhost:8080/auth/users',
 				{
-					userId: '123', //FIXME: should comes from auth context
+					_id: '123', //FIXME: should comes from auth context
 					name: profileFormData.name,
 					phone: profileFormData.phone,
 					cnic: profileFormData.cnic,
@@ -92,10 +92,10 @@ export default function ProfilePage() {
 	) => {
 		e.preventDefault()
 		try {
-			const result = await axios.post(
-				'http://localhost:8080/auth/users/profile/password',
+			const result = await axios.put(
+				'http://localhost:8080/auth/users/password',
 				{
-					userId: '123', //FIXME: should comes from auth context
+					userId: '6596c0531239ec6b70de7948', //FIXME: should comes from auth context
 					currentPassword: passwordFormData.currentPassword,
 					newPassword: passwordFormData.newPassword,
 				},
@@ -215,7 +215,7 @@ export default function ProfilePage() {
 					</div>
 					<div>
 						<label className="inline-block my-2 font-medium">
-							New Password
+							New password
 						</label>
 						<input
 							type="password"
