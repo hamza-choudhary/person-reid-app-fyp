@@ -13,6 +13,7 @@ import QueryPage from './pages/Query'
 import Results from './pages/Results'
 import Result from './pages/Results/Result'
 import Employees from './pages/Employees/Employees'
+import ProfilePage from './pages/Profile'
 // import FileDropZone from "./pages/Test";
 // import YourFormComponent from "./pages/Test";
 
@@ -31,6 +32,7 @@ function App() {
 					<Route path="/auth" element={<Auth />} />
 					<Route path="/about-us" element={<AboutUs />} />
 					<Route path="/employees" element={<Employees />} />
+					<Route path="/profile" element={<ProfilePage />} />
 					{/* <Route path="/test" element={<GalleryV2 />} /> */}
 				</Routes>
 			</ThemeProvider>
