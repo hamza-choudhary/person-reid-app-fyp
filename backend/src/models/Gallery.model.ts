@@ -6,7 +6,9 @@ const gallerySchema = new Schema(
 	{
 		images: {
 			type: [String],
-			required: true,
+		},
+		video: {
+			type: String,
 		},
 		createdBy: {
 			type: Schema.Types.ObjectId,

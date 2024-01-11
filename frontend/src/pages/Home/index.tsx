@@ -1,15 +1,7 @@
-import Layout from "../../components/Layout";
-import HomeMain from "../../components/Home/Home";
-import ResponsiveDrawer from "../../components/Sidebar";
+import HomeMain from '../../components/Home/Home'
 
 const Home = () => {
-  return (
-    // <Layout>
-    <ResponsiveDrawer>
-      <HomeMain />
-    </ResponsiveDrawer>
-    // </Layout>
-  );
-};
+	return <HomeMain />
+}
 
-export default Home;
+export default Home

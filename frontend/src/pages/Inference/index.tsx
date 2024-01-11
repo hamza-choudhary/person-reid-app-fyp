@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
-import ResponsiveDrawer from '../../components/Sidebar'
 import Button from '../../components/UI/Button'
 import GallerySelection from './components/GallerySelection'
 import ImageResults from './components/ImageResults'
@@ -164,7 +163,7 @@ export default function InferencePage() {
 	}, [])
 
 	return (
-		<ResponsiveDrawer className="p-4">
+		<>
 			{error ? (
 				<p>Error: {error}</p>
 			) : (
@@ -235,6 +234,6 @@ export default function InferencePage() {
 					</div>
 				</>
 			)}
-		</ResponsiveDrawer>
+		</>
 	)
 }

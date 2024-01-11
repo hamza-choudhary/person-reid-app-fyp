@@ -23,7 +23,7 @@ const LoginForm = () => {
 		if (auth) {
 			try {
 				await auth.login(formData.email, formData.password)
-				navigate('/home')
+				navigate('/')
 			} catch (error) {
 				console.log(error)
 				//FIXME: handle

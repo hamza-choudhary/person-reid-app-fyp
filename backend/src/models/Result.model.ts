@@ -16,7 +16,9 @@ const resultSchema = new Schema(
 		},
 		images: {
 			type: [String],
-			required: true,
+		},
+		video: {
+			type: String,
 		},
 		isDeleted: {
 			type: Boolean,
