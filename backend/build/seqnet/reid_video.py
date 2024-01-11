@@ -1,113 +1,153 @@
-from glob import glob
+import base64
+import cv2
+import sys
+import time
 import torch
+import json
 import torch.utils.data
+import numpy as np
 from PIL import Image
 from torchvision.transforms import functional as F
 
-torch.set_num_threads(torch.get_num_threads())
-
 from defaults import get_default_cfg
 from models.seqnet import SeqNet
-import time
-import cv2
 
-def visualize_result(img, counter, detections, similarities):
-    for detection, sim in zip(detections, similarities):
-        x1, y1, x2, y2 = detection
-        x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)  # Convert coordinates to integers
-        cv2.rectangle(img, (x1, y1), (x2, y2), (76, 175, 80), 3)  # BGR color, line thickness
+# Set the number of threads for PyTorch
+torch.set_num_threads(torch.get_num_threads())
 
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        text = f'{sim:.2f}'
+input_str = sys.stdin.read()
+data = json.loads(input_str)
+
+query_img_filename = data['queryImage']
+name_of_person = data['name']
+gallery_video_name = data['galleryVideo']
+
+# Function to encode frame to base64
+def send_frame_to_node(frame):
+    success, buffer = cv2.imencode('.jpg', frame)
+    if success:
+        frame_bytes = buffer.tobytes()
+        frame_base64 = base64.b64encode(frame_bytes).decode('utf-8')
+        print(f"FRAME_DATA:{frame_base64}", flush=True)
+        # sys.stdout.flush()
+
+# Function to visualize results
+def visualize_result(img, detections, similarities):
+
+    #if ERROR:
+    # if img_tensor.is_cuda:
+    #     img_tensor = img_tensor.cpu()
         
-        # Specify a fixed width for the text rectangle
-        text_width = 60  # Adjust this value to your desired width
-        
-        # Calculate the position for the text rectangle
-        text_x1 = x1
-        text_x2 = x1 + text_width
-        text_y1 = y1 - 18
-        text_y2 = y1
-        
-        # Draw a white rectangle as the background for the text
-        cv2.rectangle(img, (text_x1, text_y1), (text_x2, text_y2), (255, 255, 255), thickness=cv2.FILLED)
-        
-        # Draw the text in white color
-        cv2.putText(img, text, (x1 + 5, y1 - 18 + 25), font, 0.6, (76, 175, 80), 2)
-    result_path = f"../uploads/result-{counter}.jpg"
-    cv2.imwrite(result_path, img)
-    print(f'saving {result_path}')
+    # # Convert from PyTorch to numpy, and from CHW to HWC format for cv2
+    # img = img_tensor.numpy().transpose(1, 2, 0)
+    # # Convert from RGB to BGR as PyTorch tensor is in RGB format
+    # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
-# //! Configuration
-cfg = get_default_cfg()
-cfg.merge_from_file("./exp_cuhk/config.yaml")
-cfg.freeze()
+    # Scale pixel values from 0-1 to 0-255
+    if img.max() <= 1:
+        img = (img * 255).astype(np.uint8)
 
-device = "cuda"
+    # Find the index of the highest similarity score
+    highest_score_index = torch.argmax(similarities).item()
 
-print("creating model")
-model = SeqNet(cfg)
+    # Loop through detections and similarities to draw the boxes and similarity scores
+    for i, (detection, sim) in enumerate(zip(detections, similarities)):
+        x1, y1, x2, y2 = map(int, detection)
+        color = (0, 0, 255)
+        if i == highest_score_index: 
+            # put name of person
+            cv2.putText(img, name_of_person, (x1 + 5, y1 - 35), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            color = (0, 255, 0) # green
+        # Draw the rectangle
+        cv2.rectangle(img, (x1, y1), (x2, y2), color, 4)
+        # Put the similarity score text
+        cv2.putText(img, "{:.2f}".format(sim), (x1 + 5, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.75, color, 2)
 
-#Loading modal
-ckpt = torch.load("./exp_cuhk/epoch_19.pth", map_location=device)
-model.load_state_dict(ckpt["model"], strict=False)
-model.to(device)
+    send_frame_to_node(img)
+    return img
 
-# Evaluation Mode
-model.eval()
+def main():
+    # Configuration
+    cfg = get_default_cfg()
+    cfg.merge_from_file("./exp_cuhk/config.yaml")
+    cfg.freeze()
 
-# Loading Query Image
-query_img = [F.to_tensor(Image.open("../uploads/query.jpg").convert("RGB")).to(device)]
-query_target = [{"boxes": torch.tensor([[0, 0, 466, 943]]).to(device)}]
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print("Creating model", flush=True)
+    model = SeqNet(cfg)
 
-#gallery video capture
-vid = cv2.VideoCapture("../uploads/gallery.mp4")
+    # Load model
+    ckpt = torch.load("./exp_cuhk/epoch_19.pth", map_location=device)
+    model.load_state_dict(ckpt["model"], strict=False)
+    model.to(device)
+    model.eval()
 
-start_time_all=time.time()
-#Inference Mode
-with torch.inference_mode():
-    #query features
-    query_feat = model(query_img, query_target)[0]
+    # Load Query Image
+    query_img = [F.to_tensor(Image.open(f"../uploads/query/{query_img_filename}").convert("RGB")).to(device)]
+    query_target = [{"boxes": torch.tensor([[0, 0, 466, 943]]).to(device)}]
 
-    frame_no=0
-    #cv loop
-    try:
-        while True:
-            # Capture a frame from the video
-            ret, frame = vid.read()
-            if not ret:
-                break
-            if frame is None:
-                continue  # Skip empty frames
-            
-            start_time_single = time.time()
-            print(f"Processing frame_no:{frame_no}")
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            gallery_img = [F.to_tensor(frame_rgb).to(device)]
-            gallery_output = model(gallery_img)[0]
-            detections = gallery_output["boxes"]
-            gallery_feats = gallery_output["embeddings"]
+    # Gallery video capture
+    vid = cv2.VideoCapture(f"../uploads/gallery/{gallery_video_name}")
+    start_time_all = time.time()
+    processed_frames = []
 
-            # Compute pairwise cosine similarities,
-            # which equals to inner-products, as features are already L2-normed
-            similarities = gallery_feats.mm(query_feat.view(-1, 1)).squeeze()
-            if len(similarities.shape) == 0:
-                similarities = similarities.unsqueeze(0)
-            visual_time_start = time.time()
-            visualize_result(frame, frame_no, detections.cpu().numpy(), similarities)
-            frame_no += 1 # incrementing frame
-            visual_time_end = time.time()
-            print(f"Time taken for a single visualization: {visual_time_end - visual_time_start:.2f} seconds")
-            end_time_single = time.time()
-            print(f"Time taken for a single prediction: {end_time_single - start_time_single:.2f} seconds")
+    with torch.inference_mode():
+        # Query features
+        query_feat = model(query_img, query_target)[0]
 
+        frame_no = 0
+        try:
+            while True:
+                ret, frame = vid.read()
+                if not ret:
+                    break
+                if frame is None:
+                    continue
 
-    except Exception as e:
-        print(f"Error in main loop: {str(e)}")
-    finally:
-         # Release the video capture and close the window if needed
-        vid.release()
-        cv2.destroyAllWindows()
-    
-end_time_all = time.time()
-print(f"Time taken for all predictions: {end_time_all - start_time_all:.2f} seconds")
+                start_time_single = time.time()
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                gallery_img = [F.to_tensor(frame_rgb).to(device)]
+                gallery_output = model(gallery_img)[0]
+
+                detections = gallery_output["boxes"]
+                gallery_feats = gallery_output["embeddings"]
+                similarities = gallery_feats.mm(query_feat.view(-1, 1)).squeeze()
+                similarities = similarities.unsqueeze(0) if len(similarities.shape) == 0 else similarities
+                
+                max_similarity = torch.max(similarities)
+                # Dont save results if max score is less than this threshold
+                if max_similarity > 0.1:
+                    visual_time_start = time.time()
+                    processed_frame = visualize_result(frame, detections.cpu().numpy(), similarities)
+                    processed_frames.append(processed_frame)
+                    visual_time_end = time.time()
+                    print(f"Time taken for a single visualization: {visual_time_end - visual_time_start:.2f} seconds", flush=True)
+
+                frame_no += 1
+
+                end_time_single = time.time()
+                print(f"Time for frame {frame_no}: {end_time_single - start_time_single:.2f} seconds", flush=True)
+
+        except Exception as e:
+            print(f"Error in main loop: {str(e)}", flush=True)
+        finally:
+            vid.release()
+            cv2.destroyAllWindows()
+
+            # Write frames to video
+            if processed_frames:
+                height, width, _ = processed_frames[0].shape
+                fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+                output_video_path = '../uploads/results/output_video.mp4'
+                video_writer = cv2.VideoWriter(output_video_path, fourcc, 20.0, (width, height))
+                print(f"OUTPUT_VIDEO_PATH:{output_video_path}", flush=True)
+                for frame in processed_frames:
+                    video_writer.write(frame)
+
+                video_writer.release()
+
+    end_time_all = time.time()
+    print(f"Total time: {end_time_all - start_time_all:.2f} seconds", flush=True)
+
+if __name__ == "__main__":
+    main()
