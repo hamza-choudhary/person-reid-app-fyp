@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
-import ResponsiveDrawer from '../../components/Sidebar'
 import Button from '../../components/UI/Button'
 
 export default function ProfilePage() {
@@ -133,12 +132,11 @@ export default function ProfilePage() {
 	}
 
 	useEffect(() => {
-   //get data from auth then update the personal infor state
-  }, [])
-  
+		//get data from auth then update the personal infor state
+	}, [])
 
 	return (
-		<ResponsiveDrawer className="p-4">
+		<>
 			<section className="flex w-full">
 				<div className="w-[30%] px-8">
 					<h2 className="font-semibold text-xl">Personal Information</h2>
@@ -248,6 +246,6 @@ export default function ProfilePage() {
 					</Button>
 				</form>
 			</section>
-		</ResponsiveDrawer>
+		</>
 	)
 }
