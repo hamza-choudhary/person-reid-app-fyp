@@ -1,5 +1,6 @@
 import { ReactElement } from 'react'
 import { Navigate } from 'react-router-dom'
+import LoadingSpinner from '../components/UI/LoadingSpinner'
 import { useAuth } from '../hooks/useAuth'
 
 // type User = {
@@ -21,7 +22,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 	const { user, loading } = useAuth().state
 
 	if (loading) {
-		return <div>Loading...</div>
+		return <LoadingSpinner />
 	}
 
 	// console.log('in protected routes ', user)

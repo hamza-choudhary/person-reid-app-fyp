@@ -1,8 +1,11 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import Button from '../../components/UI/Button'
+import { useAuth } from '../../hooks/useAuth'
 
 export default function ProfilePage() {
+	const { user } = useAuth().state
+
 	const [profileFormData, setProfileFormData] = useState({
 		name: '',
 		phone: '',
@@ -54,7 +57,7 @@ export default function ProfilePage() {
 			const result = await axios.put(
 				'http://localhost:8080/auth/users',
 				{
-					_id: '659d64a1f8fe7f56b299a72f', //FIXME: should comes from auth context
+					_id: user?._id,
 					name: profileFormData.name,
 					phone: profileFormData.phone,
 					cnic: profileFormData.cnic,
@@ -94,7 +97,7 @@ export default function ProfilePage() {
 			const result = await axios.put(
 				'http://localhost:8080/auth/users/password',
 				{
-					userId: '6596c0531239ec6b70de7948', //FIXME: should comes from auth context
+					userId: user?._id,
 					currentPassword: passwordFormData.currentPassword,
 					newPassword: passwordFormData.newPassword,
 				},
@@ -132,8 +135,14 @@ export default function ProfilePage() {
 	}
 
 	useEffect(() => {
-		//get data from auth then update the personal infor state
-	}, [])
+		if (user) {
+			setProfileFormData({
+				cnic: user.cnic,
+				name: user.name,
+				phone: user.phone,
+			})
+		}
+	}, [user])
 
 	return (
 		<>
