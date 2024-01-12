@@ -14,7 +14,7 @@ router.get('/results', getResults)
 router.get('/results/:resultId', getResult) //FIXME: /results/images/resultId | results/video/resultId
 router.delete('/results/:resultId', deleteResults)
 
-router.post('/results', postImageResults)
+router.post('/results/image', postImageResults)
 router.post('/results/video', postVideoResults)
 
 export { router as resultRoutes }

@@ -10,7 +10,7 @@ interface QuerySelectionProps {
 	queries: QueryItem[]
 	formData: { queryId: string; galleryId: string }
 	setFormData: React.Dispatch<
-		React.SetStateAction<{ queryId: string; galleryId: string }>
+		React.SetStateAction<{ queryId: string; galleryId: string, galleryType: string }>
 	>
 }
 

@@ -39,7 +39,6 @@ export default function Result() {
 		setShowCarosal(true)
 	}
 
-	//TODO: fix result get api
 	useEffect(() => {
 		const sendReq = async () => {
 			try {
