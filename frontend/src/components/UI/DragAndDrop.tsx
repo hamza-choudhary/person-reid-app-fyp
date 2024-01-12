@@ -10,14 +10,18 @@ interface FileWithPreview extends File {
 	preview: string
 }
 
+type FileType = 'image' | 'video'
+
 interface DragAndDropProps {
 	onChange: (formData: FormData) => void
 	multiple?: boolean
+	fileType: FileType
 }
 
 const DragAndDrop: React.FC<DragAndDropProps> = ({
 	onChange,
 	multiple = true,
+	fileType = 'image',
 }) => {
 	const [files, setFiles] = useState<FileWithPreview[]>([])
 
@@ -32,32 +36,35 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
 		}
 	}
 
-	const handleFiles = useCallback((selectedFiles: FileList) => {
-		const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 MB in bytes
-		const imageFiles = Array.from(selectedFiles).filter((file) => {
-			if (file.type.match('image.*')) {
-				if (file.size > MAX_FILE_SIZE) {
-					alert(`File size exceeds limit (${formatFileSize(MAX_FILE_SIZE)})`)
-					return false
+	const handleFiles = useCallback(
+		(selectedFiles: FileList) => {
+			const MAX_FILE_SIZE = 500 * 1024 * 1024 // 5 MB in bytes
+			const imageFiles = Array.from(selectedFiles).filter((file) => {
+				if (file.type.match(`${fileType}.*`)) {
+					if (file.size > MAX_FILE_SIZE) {
+						alert(`File size exceeds limit (${formatFileSize(MAX_FILE_SIZE)})`)
+						return false
+					}
+					return true
 				}
-				return true
-			}
-			return false
-		})
-
-		const mappedFiles = imageFiles.map((file) => {
-			const fileWithPreview: FileWithPreview = Object.assign(file, {
-				preview: URL.createObjectURL(file),
+				return false
 			})
-			return fileWithPreview
-		})
 
-		if (multiple) {
-			setFiles((currentFiles) => [...currentFiles, ...mappedFiles])
-		} else {
-			setFiles(mappedFiles.slice(0, 1)) // Keep only the first file
-		}
-	}, [multiple])
+			const mappedFiles = imageFiles.map((file) => {
+				const fileWithPreview: FileWithPreview = Object.assign(file, {
+					preview: URL.createObjectURL(file),
+				})
+				return fileWithPreview
+			})
+
+			if (multiple) {
+				setFiles((currentFiles) => [...currentFiles, ...mappedFiles])
+			} else {
+				setFiles(mappedFiles.slice(0, 1)) // Keep only the first file
+			}
+		},
+		[multiple, fileType]
+	)
 
 	useEffect(() => {
 		const createImageFormData = (imageFiles: FileWithPreview[]) => {
@@ -88,7 +95,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
 			onDrop={handleDrop}
 		>
 			<input
-				accept="image/*"
+				accept={`${fileType}/*`}
 				type="file"
 				multiple={multiple}
 				className="absolute inset-0 z-10 w-full h-full p-0 m-0 outline-none opacity-0 cursor-pointer"
@@ -124,11 +131,19 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
 							key={index}
 							className="relative max-w-40 flex flex-col items-center overflow-hidden text-center bg-gray-100 border rounded "
 						>
-							<img
-								className="object-scale-down max-h-24 "
-								src={file.preview}
-								alt="Preview"
-							/>
+							{fileType === 'image' && (
+								<img
+									className="object-scale-down max-h-24 "
+									src={file.preview}
+									alt="Preview"
+								/>
+							)}
+							{fileType === 'video' && (
+								<video
+									src={file.preview}
+									className="object-scale-down max-h-24"
+								></video>
+							)}
 							<div className="absolute bottom-0 left-0 right-0 flex flex-col p-2 text-xs bg-white bg-opacity-50">
 								<span className="font-bold text-gray-900 truncate">
 									{file.name}

@@ -12,6 +12,7 @@ import QueryPage from '../pages/Query'
 import Results from '../pages/Results'
 import Result from '../pages/Results/Result'
 import ProtectedRoute from './ProtectedRoutes'
+import GalleryVideos from '../pages/Galleries/GalleryVideos'
 // import PublicRoute from './PublicRoute'
 
 export default function AppRouter() {
@@ -25,6 +26,7 @@ export default function AppRouter() {
 			>
 				<Route index element={<Home />} />
 				<Route path="/galleries" element={<Galleries />} />
+				<Route path="/galleries/videos" element={<GalleryVideos />} />
 				<Route path="/galleries/:galleryId" element={<Gallery />} />
 				<Route path="/queries" element={<QueryPage />} />
 				<Route path="/results" element={<Results />} />

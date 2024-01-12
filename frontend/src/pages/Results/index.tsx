@@ -3,16 +3,17 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Modal from '../../components/Modal/Modal'
 
+type ResultsItem = {
+	_id: string
+	queryId: string
+	name: string
+	fileType: string
+	resultImage?: string
+	resultVideo?: string
+	createdAt?: Date
+	size?: number
+}
 export default function Results() {
-	type ResultsItem = {
-		_id: string
-		queryId: string
-		name: string
-		queryImage: string
-		resultImage: string
-		createdAt?: Date
-		size: number
-	}
 
 	const navigate = useNavigate()
 	const [showModal, setShowModal] = useState(false)
@@ -43,7 +44,7 @@ export default function Results() {
 			console.log(error)
 		}
 	}
-
+	//TODO: fix get api according to resultItem
 	useEffect(() => {
 		const sendReq = async () => {
 			try {
@@ -92,10 +93,18 @@ export default function Results() {
 								className="relative cursor-pointer"
 								onClick={() => navigate(`/results/${result._id}`)}
 							>
-								<img
-									className="object-cover object-center w-full h-56 max-w-full rounded-lg"
-									src={`http://localhost:8080/uploads/results/${result.resultImage}`}
-								/>
+								{result.fileType === 'image' && (
+									<img
+										className="object-cover object-center w-full h-56 max-w-full rounded-lg"
+										src={`http://localhost:8080/uploads/results/${result.resultImage}`}
+									/>
+								)}
+								{result.fileType === 'video' && (
+									<video
+										className="object-cover object-center w-full h-56 max-w-full rounded-lg"
+										src={`http://localhost:8080/uploads/results/${result.resultVideo}`}
+									></video>
+								)}
 								<div className="z-10 absolute inset-0 bg-black bg-opacity-35 flex flex-col rounded-lg opacity-0 hover:opacity-100 transition-opacity">
 									<div
 										onClick={(event) => {
