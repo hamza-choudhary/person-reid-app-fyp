@@ -10,7 +10,8 @@ export default function Result() {
 		name: string
 		description?: string
 		queryImage: string
-		resultImages: string[]
+		resultImages?: string[]
+		video?: string
 		createdAt?: string
 	}
 
@@ -23,6 +24,7 @@ export default function Result() {
 		name: '',
 		queryImage: '',
 		resultImages: [],
+		video: '',
 	})
 
 	if (!resultId) {
@@ -37,6 +39,7 @@ export default function Result() {
 		setShowCarosal(true)
 	}
 
+	//TODO: fix result get api
 	useEffect(() => {
 		const sendReq = async () => {
 			try {
@@ -65,7 +68,7 @@ export default function Result() {
 						.replace(/(\d+)\/(\d+)\/(\d+),\s(\d+:\d+\s[APM]+)/, '$2/$1/$3 $4')
 				}
 
-				if (!data?.resultImages.length) {
+				if (!data?.resultImages?.length && !data?.video) {
 					navigate('/404')
 					return
 				}
@@ -84,73 +87,86 @@ export default function Result() {
 
 	return (
 		<>
-			{result.resultImages.length ? (
-				<>
-					{/* Query */}
-					<div className="flex">
-						<img
-							className="max-w-80 object-top object-contain rounded-sm max-h-[30rem]"
-							src={`http://localhost:8080/uploads/query/${result.queryImage}`}
-							alt="query image"
-						/>
-						<div className="flex flex-col pl-8">
-							<div className="flex items-center gap-4">
-								<h2 className="font-semibold text-lg">Name: </h2>
-								<p>{result.name}</p>
-							</div>
-							{result.createdAt && (
-								<div className="flex items-center gap-4">
-									<h2 className="font-semibold text-lg">Created At: </h2>
-									<p>{result.createdAt}</p>
-								</div>
-							)}
-							{result.description && (
-								<div className="flex items-center gap-4">
-									<h2 className="font-semibold text-lg">Description: </h2>
-									<p>{result.description}</p>
-								</div>
-							)}
-						</div>
+			{/* Query */}
+			<div className="flex">
+				<img
+					className="max-w-80 object-top object-contain rounded-sm max-h-[30rem]"
+					src={`http://localhost:8080/uploads/query/${result.queryImage}`}
+					alt="query image"
+				/>
+				<div className="flex flex-col pl-8">
+					<div className="flex items-center gap-4">
+						<h2 className="font-semibold text-lg">Name: </h2>
+						<p>{result.name}</p>
 					</div>
-					<hr className="border-1 border-black px-10 my-5" />
-					<h2 className="font-bold text-xl mb-4">Results:</h2>
-					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-						{result?.resultImages &&
-							result?.resultImages.map((image, index) => (
-								<>
-									<div
-										key={image.substring(0, image.length - 4)}
-										className="relative cursor-pointer"
-										onClick={() => openCarosal(index)}
-									>
-										<img
-											className="object-cover object-center w-full h-56 max-w-full rounded-lg"
-											src={`http://localhost:8080/uploads/results/${image}`}
-										/>
-										<div className="z-10 absolute inset-0 bg-black bg-opacity-35 flex flex-col rounded-lg opacity-0 hover:opacity-100 transition-opacity">
-											{/* <div className=" flex flex-col justify-center items-center my-auto">
+					{result.createdAt && (
+						<div className="flex items-center gap-4">
+							<h2 className="font-semibold text-lg">Created At: </h2>
+							<p>{result.createdAt}</p>
+						</div>
+					)}
+					{result.description && (
+						<div className="flex items-center gap-4">
+							<h2 className="font-semibold text-lg">Description: </h2>
+							<p>{result.description}</p>
+						</div>
+					)}
+				</div>
+			</div>
+			<hr className="border-1 border-black px-10 my-5" />
+			<h2 className="font-bold text-xl mb-4">Results:</h2>
+			{result.resultImages && result?.resultImages?.length > 0 ? (
+				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+					{result?.resultImages.map((image, index) => (
+						<>
+							<div
+								key={image.substring(0, image.length - 4)}
+								className="relative cursor-pointer"
+								onClick={() => openCarosal(index)}
+							>
+								<img
+									className="object-cover object-center w-full h-56 max-w-full rounded-lg"
+									src={`http://localhost:8080/uploads/results/${image}`}
+								/>
+								<div className="z-10 absolute inset-0 bg-black bg-opacity-35 flex flex-col rounded-lg opacity-0 hover:opacity-100 transition-opacity">
+									{/* <div className=" flex flex-col justify-center items-center my-auto">
 											<p className="text-white text-xl">
 												{gallery.size} images
 											</p>
 											<p>{date}</p>
 										</div> */}
-										</div>
-									</div>
-									<Carosal
-										showCarosal={showCarosal}
-										setShowCarosal={setShowCarosal}
-										firstIndex={imageIndex}
-										imageType="results"
-										images={result.resultImages}
-									/>
-								</>
-							))}
-					</div>
-				</>
-			) : (
-				<div>
-					<h1 className="text-center font-semibold">No Results Found</h1>
+								</div>
+							</div>
+							<Carosal
+								showCarosal={showCarosal}
+								setShowCarosal={setShowCarosal}
+								firstIndex={imageIndex}
+								imageType="results"
+								images={result.resultImages as string[]}
+							/>
+						</>
+					))}
 				</div>
+			) : (
+				result.video && (
+					<div className="flex justify-center items-center">
+						<div className="relative cursor-pointer">
+							<video
+								className="object-cover object-center w-full h-56 max-w-full rounded-lg"
+								src={`http://localhost:8080/uploads/results/${result.video}`}
+								controls
+							></video>
+							<div className="z-10 absolute inset-0 bg-black bg-opacity-35 flex flex-col rounded-lg opacity-0 hover:opacity-100 transition-opacity">
+								{/* <div className=" flex flex-col justify-center items-center my-auto">
+											<p className="text-white text-xl">
+												{gallery.size} images
+											</p>
+											<p>{date}</p>
+										</div> */}
+							</div>
+						</div>
+					</div>
+				)
 			)}
 		</>
 	)

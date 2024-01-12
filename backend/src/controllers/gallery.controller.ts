@@ -14,7 +14,12 @@ export const getGalleries = async (
 ) => {
 	try {
 		const result = await Gallery.aggregate([
-			{ $match: { isDeleted: false } }, // Filter out documents where isDeleted is false
+			{
+				$match: {
+					isDeleted: false,
+					images: { $exists: true, $not: { $size: 0 } }, // Ensure 'images' field exists and is not empty
+				},
+			},
 			{
 				$project: {
 					// Define the fields to include in the output
@@ -29,7 +34,28 @@ export const getGalleries = async (
 		return res.status(200).json({
 			status: 'ok',
 			data: result,
-			message: 'New gallery is created.',
+		})
+	} catch (error) {
+		next(error)
+	}
+}
+
+export const getVideoGalleries = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const result = await Gallery.find({
+			isDeleted: false,
+			video: { $ne: undefined },
+		})
+			.select('_id video createdAt')
+			.exec()
+
+		return res.status(200).json({
+			status: 'ok',
+			data: result,
 		})
 	} catch (error) {
 		next(error)
@@ -59,6 +85,38 @@ export const postGallery = async (
 			status: 'ok',
 			data: gallery.toObject(),
 			message: 'New gallery is created.',
+		})
+	} catch (error) {
+		next(error)
+	}
+}
+
+export const postGalleryVideos = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const files: FilesObject = req.files as FilesObject
+		const id = req.body.userId as string
+
+		// Rename files
+		const fileNames = renameFiles(files, 'gallery')
+
+		const galleryDocuments = fileNames.map((name) => ({
+			createdBy: id,
+			video: name,
+		}))
+
+		const result = await Gallery.insertMany(galleryDocuments)
+
+		// Resize and save images
+		await resizeAndSaveImages(files, fileNames, 'video')
+
+		return res.status(201).json({
+			status: 'ok',
+			data: result,
+			message: 'New galleries are created.',
 		})
 	} catch (error) {
 		next(error)

@@ -6,12 +6,16 @@ import DragAndDrop from '../UI/DragAndDrop'
 interface UploadImagesProps {
 	className?: string
 	buttonTxt?: string
+	fileTye: string
 	onSubmit: (formData: FormData) => void
 }
+
+type FileType = 'image' | 'video'
 
 const UploadImages: FC<UploadImagesProps> = ({
 	className = '',
 	buttonTxt = 'upload images',
+	fileTye = 'image',
 	onSubmit,
 }) => {
 	const [showModal, setShowModal] = useState(false)
@@ -91,7 +95,10 @@ const UploadImages: FC<UploadImagesProps> = ({
 							></line>
 						</svg>
 					</button>
-					<DragAndDrop onChange={dragAndDropChangeHandler} />
+					<DragAndDrop
+						fileType={fileTye as FileType}
+						onChange={dragAndDropChangeHandler}
+					/>
 					<div className="self-end mt-2">
 						<Button className="text-base" type="submit">
 							submit

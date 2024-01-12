@@ -1,3 +1,4 @@
+import ffmpeg from 'fluent-ffmpeg'
 import fs from 'fs'
 import path from 'path'
 import sharp from 'sharp'
@@ -75,6 +76,40 @@ async function processGallery(files: FilesObject, newFileNames: string[]) {
 	}
 }
 
+async function processVideos(files: FilesObject, newFileNames: string[]) {
+	const uploadPath = path.join(__dirname, '../uploads/gallery')
+	if (!fs.existsSync(uploadPath)) {
+		fs.mkdirSync(uploadPath)
+	}
+
+	for (let i = 0; i < files['gallery'].length; i++) {
+		const file = files['gallery'][i]
+		const newFileName = newFileNames[i] + '.mp4' // Ensure the file has a .mp4 extension
+		const newPath = path.join(uploadPath, newFileName)
+
+		// Convert video to MP4 and remove audio
+		await convertToMp4AndRemoveAudio(file.path, newPath)
+	}
+}
+
+function convertToMp4AndRemoveAudio(
+	inputPath: string,
+	outputPath: string
+): Promise<void> {
+	return new Promise((resolve, reject) => {
+		ffmpeg(inputPath)
+			.outputFormat('mp4')
+			.noAudio()
+			.on('end', () => {
+				resolve()
+			})
+			.on('error', (err) => {
+				reject(err)
+			})
+			.save(outputPath)
+	})
+}
+
 async function processQuery(files: FilesObject, newFileNames: string[]) {
 	const uploadPath = path.join(__dirname, '../uploads/query')
 	if (!fs.existsSync(uploadPath)) {
@@ -98,6 +133,8 @@ export async function resizeAndSaveImages(
 		await processGallery(files, newFileNames)
 	} else if (imgType === 'query') {
 		await processQuery(files, newFileNames)
+	} else if (imgType === 'video') {
+		await processVideos(files, newFileNames)
 	} else {
 		throw new Error(`Invalid image type: ${imgType}`)
 	}
