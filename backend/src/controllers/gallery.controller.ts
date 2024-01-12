@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { renameFiles, resizeAndSaveImages } from '../helpers/prediction.helper'
+import { renameFiles, renameVideoFiles, resizeAndSaveImages } from '../helpers/prediction.helper'
 import Gallery from '../models/Gallery.model'
 import { createError } from '../utils/createError'
 
@@ -101,7 +101,7 @@ export const postGalleryVideos = async (
 		const id = req.body.userId as string
 
 		// Rename files
-		const fileNames = renameFiles(files, 'gallery')
+		const fileNames = renameVideoFiles(files, 'gallery')
 
 		const galleryDocuments = fileNames.map((name) => ({
 			createdBy: id,
