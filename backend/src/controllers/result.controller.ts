@@ -290,6 +290,7 @@ export async function postVideoResults(
     }
 
     let videoName: string
+    let videoPath: string
 
     const scriptPath = path.resolve(__dirname, '../seqnet')
     const pythonProcess = spawn(
@@ -307,23 +308,17 @@ export async function postVideoResults(
     pythonProcess.stdin.end()
 
     pythonProcess.stdout.on('data', (data: Buffer) => {
-      const message = data.toString()
+      const message = data.toString().trim()
       if (message.startsWith('FRAME_DATA:')) {
         //? if output is frames send them to frontend
         const frameData = message.replace('FRAME_DATA:', '')
-        io.emit('frame', frameData)
+        io.emit('newImage', frameData)
       } else if (message.startsWith('OUTPUT_VIDEO_PATH:')) {
         //? means video is generated rename it
-        const videoPath = message.replace('OUTPUT_VIDEO_PATH:', '')
+        videoPath = message.replace('OUTPUT_VIDEO_PATH:', '')
 
         const newFileName = uuidv4() + path.extname(videoPath)
         videoName = newFileName
-
-        const directory = path.dirname(videoPath)
-        const newPath = path.join(directory, newFileName)
-
-        // Rename the file
-        fs.renameSync(videoPath, newPath)
       } else {
         console.log(message)
       }
@@ -340,7 +335,11 @@ export async function postVideoResults(
       if (code === 0) {
         try {
           if (videoName) {
-            //FIXME:
+            //FIXME: test on seeb
+            const directory = path.dirname(videoPath)
+            const newPath = path.join(directory, videoName)
+            // Rename the file
+            fs.renameSync(videoPath, newPath)
             const result = new Result({
               queryId,
               galleryId,
