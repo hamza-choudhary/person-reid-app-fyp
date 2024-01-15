@@ -99,13 +99,14 @@ export async function getResult(
           name: '$queryData.name',
           description: '$queryData.description',
           queryImage: '$queryData.image',
-          resultImage: {
-            $cond: { if: { $gt: [{ $size: '$images' }, 0] }, then: '$images' },
-            video: {
-              $cond: { if: '$video', then: '$video', else: '$$REMOVE' },
-            },
-            createdAt: 1,
-          },
+          resultImages: '$images'
+          // resultImage: {
+          //   $cond: { if: { $gt: [{ $size: '$images' }, 0] }, then: '$images' },
+          //   video: {
+          //     $cond: { if: '$video', then: '$video', else: '$$REMOVE' },
+          //   },
+          //   createdAt: 1,
+          // },
         },
       },
     ])
