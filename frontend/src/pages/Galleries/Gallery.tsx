@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import Carosal from '../../components/Carosal/Carosal'
 import Modal from '../../components/Modal/Modal'
 import UploadImages from '../../components/UploadImages/UploadImages'
@@ -65,9 +66,10 @@ export default function Gallery() {
 			const { data } = response.data
 
 			setGallery((prev) => ({ ...prev, images: data.images }))
+			toast.success('Gallery added successfully')
 		} catch (error) {
-			//FIXME:L handle error and success
 			console.log(error)
+			toast.error('Gallery is not added')
 		}
 	}
 
@@ -98,9 +100,10 @@ export default function Gallery() {
 			if (response.data.data.images.length === 0) {
 				navigate('/galleries')
 			}
+			toast.success('Gallery deleted successfully')
 		} catch (error) {
-			//FIXME: handle error and success
 			console.log(error)
+			toast.error('Gallery cannot be deleted')
 		}
 	}
 
@@ -117,8 +120,8 @@ export default function Gallery() {
 				const { data }: { data: GalleryItem } = response.data
 				setGallery(data)
 			} catch (error) {
-				//FIXME: handle error and success
 				console.log(`not fetching the ${galleryId}`)
+				toast.error('Unable to send req to fetch gallery')
 			}
 		}
 

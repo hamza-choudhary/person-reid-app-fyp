@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import Modal from '../../components/Modal/Modal'
 import UploadImages from '../../components/UploadImages/UploadImages'
 
@@ -57,9 +58,10 @@ export default function Galleries() {
 			])
 
 			console.log(response)
+			toast.success('Gallery uploaded successfully')
 		} catch (error) {
-			//FIXME:L handle error and success
 			console.log(error)
+			toast.error('Gallery is not added')
 		}
 	}
 
@@ -82,9 +84,10 @@ export default function Galleries() {
 				prev.filter((gallery) => gallery._id !== deleteGalleryId)
 			)
 			setShowModal(false)
+			toast.success('Gallery deleted successfully')
 		} catch (error) {
-			//FIXME: handle error and success
 			console.log(error)
+			toast.error('Gallery is not deleted')
 		}
 	}
 
@@ -99,8 +102,8 @@ export default function Galleries() {
 				const { data }: { data: GalleryItem[] } = response.data
 				setGalleries(data)
 			} catch (error) {
-				//FIXME: handle error and success
 				console.log(error)
+				toast.error('Galleries are not found')
 			}
 		}
 
