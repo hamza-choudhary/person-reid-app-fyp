@@ -6,6 +6,7 @@ import ImageResults from './components/ImageResults'
 import QuerySelection from './components/QuerySelection'
 
 import socketIOClient from 'socket.io-client'
+import LoadingSpinner from '../../components/UI/LoadingSpinner'
 
 const SOCKET_SERVER_URL = 'http://localhost:8080'
 
@@ -295,6 +296,9 @@ export default function InferencePage() {
 							/>
 						</div>
 					)}
+					{!imageResults?.length && !videoResults && 
+							<LoadingSpinner/>
+					}
 				</>
 			)}
 		</>
