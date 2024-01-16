@@ -66,15 +66,17 @@ const Carosal: React.FC<CarosalProps> = ({
 				<div className="relative"></div>
 				{/* Image */}
 				<div className="z-[1201]" onClick={(e) => e.stopPropagation()}>
-					{imageType === 'query' ? (
-						<QueryCarosal query={images[currentIndex] as QueryItem} />
-					) : imageType === 'gallery' ? (
+					{(imageType === 'gallery' || imageType === 'results') && (
 						<img
 							className="object-contain object-center max-h-[95vh] max-w-[80vw]"
 							src={`http://localhost:8080/uploads/${imageType}/${images[currentIndex]}`}
 							alt="Carousel Image"
 						/>
-					) : (
+					)}
+					{imageType === 'query' && (
+						<QueryCarosal query={images[currentIndex] as QueryItem} />
+					)}
+					{imageType === 'video' && (
 						<VideoCarosal
 							galleryVideo={images[currentIndex] as GalleryVideoItem}
 						/>

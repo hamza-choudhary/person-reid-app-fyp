@@ -97,7 +97,7 @@ export default function Results() {
                     src={`http://localhost:8080/uploads/results/${result.resultImage}`}
                   />
                 )}
-                {result.resultVideo === 'video' && (
+                {result.resultVideo && (
                   <video
                     className="object-cover object-center w-full h-56 max-w-full rounded-lg"
                     src={`http://localhost:8080/uploads/results/${result.resultVideo}`}

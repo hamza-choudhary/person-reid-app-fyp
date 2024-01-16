@@ -62,7 +62,7 @@ export async function getResults(
 							else: '$$REMOVE',
 						},
 					},
-					video: { $cond: { if: '$video', then: '$video', else: '$$REMOVE' } },
+					resultVideo: { $cond: { if: '$video', then: '$video', else: '$$REMOVE' } },
 					createdAt: 1,
 				},
 			},
@@ -121,7 +121,7 @@ export async function getResult(
 							else: '$$REMOVE',
 						},
 					},
-					video: {
+					resultVideo: {
 						$cond: { if: '$video', then: '$video', else: '$$REMOVE' },
 					},
 					createdAt: 1,

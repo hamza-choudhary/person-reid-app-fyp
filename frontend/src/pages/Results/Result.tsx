@@ -11,7 +11,7 @@ export default function Result() {
 		description?: string
 		queryImage: string
 		resultImages?: string[]
-		video?: string
+		resultVideo?: string
 		createdAt?: string
 	}
 
@@ -24,7 +24,7 @@ export default function Result() {
 		name: '',
 		queryImage: '',
 		resultImages: [],
-		video: '',
+		resultVideo: '',
 	})
 
 	// if (!resultId) {
@@ -67,16 +67,16 @@ export default function Result() {
 						.replace(/(\d+)\/(\d+)\/(\d+),\s(\d+:\d+\s[APM]+)/, '$2/$1/$3 $4')
 				}
 
-				// if (!data?.resultImages?.length && !data?.video) {
-				// 	navigate('/404')
-				// 	return
-				// }
+				if (!data?.resultImages?.length && !data?.resultVideo) {
+					navigate('/404')
+					return
+				}
 
 				setResult({ ...data, createdAt: date })
 			} catch (error) {
 				//FIXME: handle error and success
 				console.log(`not fetching the ${resultId} `, error)
-				// navigate('/404')
+				navigate('/404')
 				return
 			}
 		}
@@ -147,12 +147,12 @@ export default function Result() {
 					))}
 				</div>
 			) : (
-				result.video && (
+				result.resultVideo && (
 					<div className="flex justify-center items-center">
 						<div className="relative cursor-pointer">
 							<video
 								className="object-cover object-center w-full h-56 max-w-full rounded-lg"
-								src={`http://localhost:8080/uploads/results/${result.video}`}
+								src={`http://localhost:8080/uploads/results/${result.resultVideo}`}
 								controls
 							></video>
 							<div className="z-10 absolute inset-0 bg-black bg-opacity-35 flex flex-col rounded-lg opacity-0 hover:opacity-100 transition-opacity">
