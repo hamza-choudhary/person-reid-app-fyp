@@ -27,67 +27,70 @@ import Button from './UI/Button'
 
 const drawerWidth = 240
 
-const pages: { name: string; link: string; icon: any }[] = [
-	{
-		name: 'Home',
-		link: '/',
-		icon: <HomeIcon />,
-	},
-	{ name: 'Inference', link: `/inference`, icon: <ConstructionIcon /> },
-	{ name: 'Query', link: `/queries`, icon: <QuizIcon /> },
-	{ name: 'Gallery', link: `/galleries`, icon: <CollectionsIcon /> },
-	{
-		name: 'Gallery videos',
-		link: `/galleries/videos`,
-		icon: <VideoCameraBackIcon />,
-	},
-	{ name: 'Results', link: `/results`, icon: <FilterCenterFocusIcon /> },
-	{ name: 'Manage employees', link: `/employees`, icon: <PeopleAltIcon /> },
-	{ name: 'Profile', link: `/profile`, icon: <Person2Icon /> },
-	{ name: 'About Us', link: `/about-us`, icon: <Diversity3Icon /> },
-	// { name: "FAQs", link: `/faqs` },
-]
-
 export default function ResponsiveDrawer(props: any) {
-	const { window } = props
-	const [mobileOpen, setMobileOpen] = React.useState(false)
+  let pages: { name: string; link: string; icon: any }[] = [
+    {
+      name: 'Home',
+      link: '/',
+      icon: <HomeIcon />,
+    },
+    { name: 'Inference', link: `/inference`, icon: <ConstructionIcon /> },
+    { name: 'Query', link: `/queries`, icon: <QuizIcon /> },
+    { name: 'Gallery', link: `/galleries`, icon: <CollectionsIcon /> },
+    {
+      name: 'Gallery videos',
+      link: `/galleries/videos`,
+      icon: <VideoCameraBackIcon />,
+    },
+    { name: 'Results', link: `/results`, icon: <FilterCenterFocusIcon /> },
+    { name: 'Manage employees', link: `/employees`, icon: <PeopleAltIcon /> },
+    { name: 'Profile', link: `/profile`, icon: <Person2Icon /> },
+    { name: 'About Us', link: `/about-us`, icon: <Diversity3Icon /> },
+    // { name: "FAQs", link: `/faqs` },
+  ]
 
-	const handleDrawerToggle = () => {
-		setMobileOpen(!mobileOpen)
-	}
+  const { logout, state } = useAuth()
+  if (state.user?.role !== 'admin') {
+    pages = pages.filter((item) => item.name !== 'Manage employees')
+  }
 
-	const { logout } = useAuth()
+  const { window } = props
+  const [mobileOpen, setMobileOpen] = React.useState(false)
 
-	const drawer = (
-		<div>
-			<Toolbar />
-			<List>
-				{pages.map((text) => (
-					<ListItem key={text.name} disablePadding>
-						<ListItemButton>
-							{/* <ListItemIcon>
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen)
+  }
+
+  const drawer = (
+    <div>
+      <Toolbar />
+      <List>
+        {pages.map((text) => (
+          <ListItem key={text.name} disablePadding>
+            <ListItemButton>
+              {/* <ListItemIcon>
                 {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
               </ListItemIcon> */}
-							<NavLink
-								to={`${text.link}`}
-								style={{
-									color: 'white',
-									textDecoration: 'none',
-									display: 'flex',
-									alignItems: 'center',
-									columnGap: '15px',
-								}}
-							>
-								<ListItemIcon sx={{ color: 'text.primary', minWidth: 'auto' }}>
-									{text.icon}
-								</ListItemIcon>
-								<ListItemText primary={text.name} />
-							</NavLink>
-						</ListItemButton>
-					</ListItem>
-				))}
-			</List>
-			{/* <List>
+              <NavLink
+                to={`${text.link}`}
+                style={{
+                  color: 'white',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  columnGap: '15px',
+                }}
+              >
+                <ListItemIcon sx={{ color: 'text.primary', minWidth: 'auto' }}>
+                  {text.icon}
+                </ListItemIcon>
+                <ListItemText primary={text.name} />
+              </NavLink>
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+      {/* <List>
         {["All mail", "Trash", "Spam"].map((text, index) => (
           <ListItem key={text} disablePadding>
             <ListItemButton>
@@ -99,92 +102,92 @@ export default function ResponsiveDrawer(props: any) {
           </ListItem>
         ))}
       </List> */}
-		</div>
-	)
+    </div>
+  )
 
-	// Remove this const when copying and pasting into your project.
-	const container =
-		window !== undefined ? () => window().document.body : undefined
+  // Remove this const when copying and pasting into your project.
+  const container =
+    window !== undefined ? () => window().document.body : undefined
 
-	return (
-		<Box sx={{ display: 'flex', position: 'relative' }}>
-			<CssBaseline />
-			<AppBar
-				position="fixed"
-				sx={{
-					width: { sm: `calc(100% - ${drawerWidth}px)` },
-					ml: { sm: `${drawerWidth}px` },
-				}}
-			>
-				<div className="flex justify-end items-end absolute right-6 top-6">
-					<Button onClick={() => logout()}>Logout</Button>
-				</div>
-				<Toolbar>
-					<IconButton
-						color="inherit"
-						aria-label="open drawer"
-						edge="start"
-						onClick={handleDrawerToggle}
-						sx={{ mr: 2, display: { sm: 'none' } }}
-					>
-						<MenuIcon />
-					</IconButton>
-					<Typography variant="h6" noWrap component="div">
-						Responsive drawer
-					</Typography>
-				</Toolbar>
-			</AppBar>
-			<Box
-				component="nav"
-				sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-				aria-label="mailbox folders"
-			>
-				{/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-				<Drawer
-					container={container}
-					variant="temporary"
-					open={mobileOpen}
-					onClose={handleDrawerToggle}
-					ModalProps={{
-						keepMounted: true, // Better open performance on mobile.
-					}}
-					sx={{
-						display: { xs: 'block', sm: 'none' },
-						'& .MuiDrawer-paper': {
-							boxSizing: 'border-box',
-							width: drawerWidth,
-							backgroundColor: '#1C1D25',
-						},
-					}}
-				>
-					{drawer}
-				</Drawer>
-				<Drawer
-					variant="permanent"
-					sx={{
-						display: { xs: 'none', sm: 'block' },
-						'& .MuiDrawer-paper': {
-							boxSizing: 'border-box',
-							width: drawerWidth,
-							backgroundColor: '#1C1D25',
-						},
-					}}
-					open
-				>
-					{drawer}
-				</Drawer>
-			</Box>
-			<Box
-				component="main"
-				sx={{
-					flexGrow: 1,
-					p: 3,
-					width: { sm: `calc(100% - ${drawerWidth}px)` },
-					mt: '50px',
-				}}
-			>
-				{props.children}
-				{/* <Toolbar />
+  return (
+    <Box sx={{ display: 'flex', position: 'relative' }}>
+      <CssBaseline />
+      <AppBar
+        position="fixed"
+        sx={{
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          ml: { sm: `${drawerWidth}px` },
+        }}
+      >
+        <div className="flex justify-end items-end absolute right-6 top-6">
+          <Button onClick={() => logout()}>Logout</Button>
+        </div>
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { sm: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap component="div">
+            Responsive drawer
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Box
+        component="nav"
+        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        aria-label="mailbox folders"
+      >
+        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+        <Drawer
+          container={container}
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{
+            keepMounted: true, // Better open performance on mobile.
+          }}
+          sx={{
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+              backgroundColor: '#1C1D25',
+            },
+          }}
+        >
+          {drawer}
+        </Drawer>
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: 'none', sm: 'block' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+              backgroundColor: '#1C1D25',
+            },
+          }}
+          open
+        >
+          {drawer}
+        </Drawer>
+      </Box>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          mt: '50px',
+        }}
+      >
+        {props.children}
+        {/* <Toolbar />
         <Typography paragraph>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
           eiusmod tempor incididunt ut labore et dolore magna aliqua. Rhoncus
@@ -214,7 +217,7 @@ export default function ResponsiveDrawer(props: any) {
           eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
           posuere sollicitudin aliquam ultrices sagittis orci a.
         </Typography> */}
-			</Box>
-		</Box>
-	)
+      </Box>
+    </Box>
+  )
 }

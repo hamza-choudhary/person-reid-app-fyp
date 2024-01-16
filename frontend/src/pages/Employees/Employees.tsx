@@ -5,69 +5,78 @@ import Button from '../../components/UI/Button'
 import AddEditEmployeeModal from './components/AddEditEmployeeModal'
 import DeleteEmployee from './components/DeleteEmployee'
 import EditEmployee from './components/EditEmployee'
+import { useAuth } from '../../hooks/useAuth'
+import { useNavigate } from 'react-router-dom'
 
 type EmployeeType = {
-	_id: string
-	name: string
-	email: string
-	role: string
-	cnic: string
-	phone: string
+  _id: string
+  name: string
+  email: string
+  role: string
+  cnic: string
+  phone: string
 }
 
 type EmployeeTableItem = {
-	sr: number
-	name: string
-	role: string
-	cnic: string
-	data: EmployeeType
+  sr: number
+  name: string
+  role: string
+  cnic: string
+  data: EmployeeType
 }
 
 export default function Employees() {
-	const [employees, setEmployees] = useState<EmployeeTableItem[]>([])
-	const [showAddEmpModal, setShowAddEmpModal] = useState(false)
+  const [employees, setEmployees] = useState<EmployeeTableItem[]>([])
+  const [showAddEmpModal, setShowAddEmpModal] = useState(false)
 
-	useEffect(() => {
-		const sendReq = async () => {
-			try {
-				const response = await axios.get('http://localhost:8080/auth/users')
+  const navigate = useNavigate()
+  const user = useAuth().state.user
 
-				const data = response.data.data as EmployeeType[]
+  useEffect(() => {
+    const sendReq = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/auth/users')
 
-				const transformedData = data.map((employee, index) => ({
-					sr: index + 1,
-					name: employee.name,
-					role: employee.role,
-					cnic: employee.cnic,
-					data: employee,
-				}))
+        const data = response.data.data as EmployeeType[]
 
-				setEmployees(transformedData)
-			} catch (e) {
-				//FIXME: handle error
-				console.log(e)
-			}
-		}
+        const transformedData = data.map((employee, index) => ({
+          sr: index + 1,
+          name: employee.name,
+          role: employee.role,
+          cnic: employee.cnic,
+          data: employee,
+        }))
 
-		sendReq()
-	}, [])
+        setEmployees(transformedData)
+      } catch (e) {
+        //FIXME: handle error
+        console.log(e)
+      }
+    }
 
-	return (
-		<>
-			<div className="w-full">
-				<div className="mt-5 flex justify-between items-center">
-					<h1 className="font-bold text-3xl">Employees</h1>
-					<Button
-						className="py-3 px-5"
-						type="button"
-						onClick={() => setShowAddEmpModal(true)}
-					>
-						Add Employee
-					</Button>
-				</div>
-				{/* <div className="my-5 flex items-center border-2 rounded-lg w-80"> */}
-				{/* //FIXME: work on search bar with onchange change data array hardly 5 mint task */}
-				{/* <input
+    sendReq()
+  }, [])
+
+  if (user?.role !== 'admin') {
+    navigate('/')
+  }
+
+  return (
+    <>
+      <div className="w-full">
+        <div className="mt-5 flex justify-between items-center">
+          <h1 className="font-bold text-3xl">Employees</h1>
+          <Button
+            className="py-3 px-5"
+            type="button"
+            onClick={() => setShowAddEmpModal(true)}
+          >
+            Add Employee
+          </Button>
+        </div>
+        {/* <div className="my-5 flex items-center border-2 rounded-lg w-80"> */}
+        {/* //FIXME: work on search bar with onchange change data array hardly 5 mint task */}
+        {/* <input
               type="text"
               placeholder="Search Employee"
               className="p-2 pl-4 w-full rounded-lg rounded-r-none"
@@ -90,29 +99,29 @@ export default function Employees() {
               </svg>
             </span>
           </div> */}
-				<Table
-					columns={['Sr.', 'Name', 'Designation', 'CNIC']}
-					data={employees}
-					components={[
-						{
-							Component: EditEmployee,
-							props: {
-								setEmployees: setEmployees,
-							},
-						},
-						{
-							Component: DeleteEmployee,
-							props: { setEmployees: setEmployees },
-						},
-					]}
-					isActions={true}
-				/>
-			</div>
-			<AddEditEmployeeModal
-				setEmployees={setEmployees}
-				showModal={showAddEmpModal}
-				setShowModal={setShowAddEmpModal}
-			/>
-		</>
-	)
+        <Table
+          columns={['Sr.', 'Name', 'Designation', 'CNIC']}
+          data={employees}
+          components={[
+            {
+              Component: EditEmployee,
+              props: {
+                setEmployees: setEmployees,
+              },
+            },
+            {
+              Component: DeleteEmployee,
+              props: { setEmployees: setEmployees },
+            },
+          ]}
+          isActions={true}
+        />
+      </div>
+      <AddEditEmployeeModal
+        setEmployees={setEmployees}
+        showModal={showAddEmpModal}
+        setShowModal={setShowAddEmpModal}
+      />
+    </>
+  )
 }
