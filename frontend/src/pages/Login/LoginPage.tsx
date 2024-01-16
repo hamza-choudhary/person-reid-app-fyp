@@ -42,7 +42,7 @@ const LoginPage = () => {
 					value: '#0000',
 				},
 			},
-			fpsLimit: 120,
+			fpsLimit: 60,
 			interactivity: {
 				events: {
 					onClick: {
@@ -89,7 +89,7 @@ const LoginPage = () => {
 					density: {
 						enable: true,
 					},
-					value: 100,
+					value: 200,
 				},
 				opacity: {
 					value: 0.5,
@@ -137,7 +137,7 @@ const LoginPage = () => {
 							options={options}
 						/>
 					</div>
-					<div className="bg-yellow-500 z-50 absolute">
+					<div className=" z-50 absolute">
 						<LoginForm />
 					</div>
 					<div className="w-screen h-screen absolute">

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 import Button from '../../components/UI/Button'
 import { useAuth } from '../../hooks/useAuth'
 
@@ -83,9 +84,10 @@ export default function ProfilePage() {
 				cnic: data.cnic,
 				phone: data.phone,
 			})
+			toast.success('Profile changed successfully')
 		} catch (error) {
-			//Fixme: handle errors
 			console.log(error)
+			toast.error('Re-submit to change profile')
 		}
 	}
 
@@ -119,9 +121,10 @@ export default function ProfilePage() {
 			})
 
 			setIsPasswordMatch(null)
+			toast.success('Password changed successfully')
 		} catch (error) {
-			//Fixme: handle errors
 			console.log(error)
+			toast.error('Password not changed')
 		}
 	}
 

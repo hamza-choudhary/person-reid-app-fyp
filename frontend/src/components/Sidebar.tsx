@@ -107,7 +107,7 @@ export default function ResponsiveDrawer(props: any) {
 		window !== undefined ? () => window().document.body : undefined
 
 	return (
-		<Box sx={{ display: 'flex' }}>
+		<Box sx={{ display: 'flex', position: 'relative' }}>
 			<CssBaseline />
 			<AppBar
 				position="fixed"
@@ -116,7 +116,7 @@ export default function ResponsiveDrawer(props: any) {
 					ml: { sm: `${drawerWidth}px` },
 				}}
 			>
-				<div className="flex justify-end items-end">
+				<div className="flex justify-end items-end absolute right-6 top-6">
 					<Button onClick={() => logout()}>Logout</Button>
 				</div>
 				<Toolbar>

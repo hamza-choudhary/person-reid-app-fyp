@@ -17,10 +17,12 @@
     "@tsparticles/engine": "^3.0.3",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.0.3",
+    "@types/react-toastify": "^4.1.0",
     "axios": "^1.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.18.0",
+    "react-toastify": "^10.0.3",
     "socket.io-client": "^4.7.3"
   },
   "devDependencies": {

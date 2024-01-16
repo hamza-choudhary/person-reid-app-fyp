@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 import Carosal from '../../components/Carosal/Carosal'
 import Modal from '../../components/Modal/Modal'
 import Button from '../../components/UI/Button'
@@ -72,8 +73,8 @@ export default function QueryPage() {
 				const { data }: { data: QueryItem[] } = response.data
 				setQueries(data)
 			} catch (error) {
-				//FIXME: handle error and success
 				console.log(error)
+				toast.error('Queries are not fetched')
 			}
 		}
 
@@ -113,8 +114,8 @@ export default function QueryPage() {
 			setInputFields({ name: '', description: '' })
 			setShowAddQueryModal(false)
 		} catch (error) {
-			//FIXME: handle error and success
 			console.log(error, 'in handle submit')
+			toast.error('Unable to send upload request')
 		}
 	}
 
@@ -136,9 +137,10 @@ export default function QueryPage() {
 			setQueries((prev) => prev.filter((query) => query._id !== deleteQueryId))
 			setShowAddQueryModal(false)
 			setShowDeleteQueryModal(false)
+			toast.success('Query deleted successfully')
 		} catch (error) {
-			//FIXME: handle error and success
 			console.log(error)
+			toast.error('Query is not deleted')
 		}
 	}
 
