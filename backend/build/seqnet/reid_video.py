@@ -1,5 +1,4 @@
 import base64
-from tkinter.tix import Tree
 import cv2
 import sys
 import time
