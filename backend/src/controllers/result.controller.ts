@@ -38,7 +38,7 @@ export async function getResults(
           queryId: '$queryData._id',
           name: '$queryData.name',
           queryImage: '$queryData.image',
-          resultImage: {
+          resultImages: {
             $cond: {
               if: { $gt: [{ $size: '$images' }, 0] },
               then: { $arrayElemAt: ['$images', 0] },
