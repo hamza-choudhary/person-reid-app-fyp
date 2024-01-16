@@ -8,6 +8,7 @@ import torch.utils.data
 import numpy as np
 from PIL import Image
 from torchvision.transforms import functional as F
+import imageio
 
 from defaults import get_default_cfg
 from models.seqnet import SeqNet
@@ -21,7 +22,7 @@ data = json.loads(input_str)
 query_img_filename = data['queryImage']
 name_of_person = data['name']
 gallery_video_name = data['galleryVideo']
-
+output_video_path = ''
 # Function to encode frame to base64
 def send_frame_to_node(frame):
     success, buffer = cv2.imencode('.jpg', frame)
@@ -103,6 +104,11 @@ def main():
                     break
                 if frame is None:
                     continue
+                
+                original_height, original_width, _ = frame.shape
+                new_height = original_height + (16 - original_height % 16)
+                new_width = original_width + (16 - original_width % 16)
+                frame = cv2.resize(frame, (new_width, new_height))
 
                 start_time_single = time.time()
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -136,18 +142,22 @@ def main():
 
             # Write frames to video
             if processed_frames:
-                height, width, _ = processed_frames[0].shape
-                fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+                # height, width, _ = processed_frames[0].shape
+                # fourcc = cv2.VideoWriter_fourcc(*'MP4V')
                 output_video_path = '../uploads/results/output_video.mp4'
-                video_writer = cv2.VideoWriter(output_video_path, fourcc, 20.0, (width, height))
-                print(f"OUTPUT_VIDEO_PATH:{output_video_path}", flush=True)
-                for frame in processed_frames:
-                    video_writer.write(frame)
+                with imageio.get_writer(output_video_path, fps=20) as video_writer:
+                    for frame in processed_frames:
+                        video_writer.append_data(frame)
+                # video_writer = cv2.VideoWriter(output_video_path, fourcc, 20.0, (width, height))
+                # for frame in processed_frames:
+                #     video_writer.write(frame)
 
-                video_writer.release()
+                # video_writer.release()
+                    # print(f"OUTPUT_VIDEO_PATH:{output_video_path}")
+                    # sys.stdout.flush()
 
     end_time_all = time.time()
     print(f"Total time: {end_time_all - start_time_all:.2f} seconds", flush=True)
-
+    print(f"OUTPUT_VIDEO_PATH:{output_video_path}", flush=True)
 if __name__ == "__main__":
     main()
