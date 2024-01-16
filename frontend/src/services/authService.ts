@@ -30,7 +30,11 @@ export const authService = {
 		return data
 	},
 	logout: async () => {
-		await axios.post(`${API_URL}/logout`, {}, { withCredentials: true })
+		await axios.post(`${API_URL}/logout`, {
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		})
 		localStorage.removeItem('access_token')
 	},
 }

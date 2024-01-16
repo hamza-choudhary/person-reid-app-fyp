@@ -1,84 +1,93 @@
-import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import CssBaseline from "@mui/material/CssBaseline";
-import Divider from "@mui/material/Divider";
-import Drawer from "@mui/material/Drawer";
-import IconButton from "@mui/material/IconButton";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import MailIcon from "@mui/icons-material/Mail";
-import MenuIcon from "@mui/icons-material/Menu";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import { NavLink } from "react-router-dom";
-import HomeIcon from "@mui/icons-material/Home";
-import CollectionsIcon from "@mui/icons-material/Collections";
-import ModelTrainingIcon from "@mui/icons-material/ModelTraining";
-import QuizIcon from "@mui/icons-material/Quiz";
-import Person2Icon from "@mui/icons-material/Person2";
-import Diversity3Icon from "@mui/icons-material/Diversity3";
+import CollectionsIcon from '@mui/icons-material/Collections'
+import ConstructionIcon from '@mui/icons-material/Construction'
+import Diversity3Icon from '@mui/icons-material/Diversity3'
+import FilterCenterFocusIcon from '@mui/icons-material/FilterCenterFocus'
+import HomeIcon from '@mui/icons-material/Home'
+import MenuIcon from '@mui/icons-material/Menu'
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
+import Person2Icon from '@mui/icons-material/Person2'
+import QuizIcon from '@mui/icons-material/Quiz'
+import VideoCameraBackIcon from '@mui/icons-material/VideoCameraBack'
+import AppBar from '@mui/material/AppBar'
+import Box from '@mui/material/Box'
+import CssBaseline from '@mui/material/CssBaseline'
+import Drawer from '@mui/material/Drawer'
+import IconButton from '@mui/material/IconButton'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import Toolbar from '@mui/material/Toolbar'
+import Typography from '@mui/material/Typography'
+import * as React from 'react'
+import { NavLink } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
+import Button from './UI/Button'
 
-const drawerWidth = 240;
+const drawerWidth = 240
 
 const pages: { name: string; link: string; icon: any }[] = [
-  {
-    name: "Home",
-    link: "/",
-    icon: <HomeIcon />,
-  },
-  { name: "About Us", link: `/about-us`, icon: <Diversity3Icon /> },
-  { name: "Inference", link: `/inference`, icon: <ModelTrainingIcon /> },
-  { name: "Query", link: `/queries`, icon: <QuizIcon /> },
-  { name: "Gallery", link: `/galleries`, icon: <CollectionsIcon /> },
-  { name: "Profile", link: `/profile`, icon: <Person2Icon /> },
-  // { name: "FAQs", link: `/faqs` },
-];
+	{
+		name: 'Home',
+		link: '/',
+		icon: <HomeIcon />,
+	},
+	{ name: 'Inference', link: `/inference`, icon: <ConstructionIcon /> },
+	{ name: 'Query', link: `/queries`, icon: <QuizIcon /> },
+	{ name: 'Gallery', link: `/galleries`, icon: <CollectionsIcon /> },
+	{
+		name: 'Gallery videos',
+		link: `/galleries/videos`,
+		icon: <VideoCameraBackIcon />,
+	},
+	{ name: 'Results', link: `/results`, icon: <FilterCenterFocusIcon /> },
+	{ name: 'Manage employees', link: `/employees`, icon: <PeopleAltIcon /> },
+	{ name: 'Profile', link: `/profile`, icon: <Person2Icon /> },
+	{ name: 'About Us', link: `/about-us`, icon: <Diversity3Icon /> },
+	// { name: "FAQs", link: `/faqs` },
+]
 
 export default function ResponsiveDrawer(props: any) {
-  const { window } = props;
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+	const { window } = props
+	const [mobileOpen, setMobileOpen] = React.useState(false)
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
+	const handleDrawerToggle = () => {
+		setMobileOpen(!mobileOpen)
+	}
 
-  const drawer = (
-    <div>
-      <Toolbar />
-      <Divider />
-      <List>
-        {pages.map((text, index) => (
-          <ListItem key={text.name} disablePadding>
-            <ListItemButton>
-              {/* <ListItemIcon>
+	const { logout } = useAuth()
+
+	const drawer = (
+		<div>
+			<Toolbar />
+			<List>
+				{pages.map((text) => (
+					<ListItem key={text.name} disablePadding>
+						<ListItemButton>
+							{/* <ListItemIcon>
                 {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
               </ListItemIcon> */}
-              <NavLink
-                to={`${text.link}`}
-                style={{
-                  color: "white",
-                  textDecoration: "none",
-                  display: "flex",
-                  alignItems: "center",
-                  columnGap: "15px",
-                }}
-              >
-                <ListItemIcon sx={{ color: "text.primary", minWidth: "auto" }}>
-                  {text.icon}
-                </ListItemIcon>
-                <ListItemText primary={text.name} />
-              </NavLink>
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      {/* <List>
+							<NavLink
+								to={`${text.link}`}
+								style={{
+									color: 'white',
+									textDecoration: 'none',
+									display: 'flex',
+									alignItems: 'center',
+									columnGap: '15px',
+								}}
+							>
+								<ListItemIcon sx={{ color: 'text.primary', minWidth: 'auto' }}>
+									{text.icon}
+								</ListItemIcon>
+								<ListItemText primary={text.name} />
+							</NavLink>
+						</ListItemButton>
+					</ListItem>
+				))}
+			</List>
+			{/* <List>
         {["All mail", "Trash", "Spam"].map((text, index) => (
           <ListItem key={text} disablePadding>
             <ListItemButton>
@@ -90,89 +99,92 @@ export default function ResponsiveDrawer(props: any) {
           </ListItem>
         ))}
       </List> */}
-    </div>
-  );
+		</div>
+	)
 
-  // Remove this const when copying and pasting into your project.
-  const container =
-    window !== undefined ? () => window().document.body : undefined;
+	// Remove this const when copying and pasting into your project.
+	const container =
+		window !== undefined ? () => window().document.body : undefined
 
-  return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: "none" } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Responsive drawer
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Box
-        component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-        aria-label="mailbox folders"
-      >
-        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-        <Drawer
-          container={container}
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
-          sx={{
-            display: { xs: "block", sm: "none" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: drawerWidth,
-              backgroundColor: "#1C1D25",
-            },
-          }}
-        >
-          {drawer}
-        </Drawer>
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: "none", sm: "block" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: drawerWidth,
-              backgroundColor: "#1C1D25",
-            },
-          }}
-          open
-        >
-          {drawer}
-        </Drawer>
-      </Box>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          mt: "50px",
-        }}
-      >
-        {props.children}
-        {/* <Toolbar />
+	return (
+		<Box sx={{ display: 'flex' }}>
+			<CssBaseline />
+			<AppBar
+				position="fixed"
+				sx={{
+					width: { sm: `calc(100% - ${drawerWidth}px)` },
+					ml: { sm: `${drawerWidth}px` },
+				}}
+			>
+				<div className="flex justify-end items-end">
+					<Button onClick={() => logout()}>Logout</Button>
+				</div>
+				<Toolbar>
+					<IconButton
+						color="inherit"
+						aria-label="open drawer"
+						edge="start"
+						onClick={handleDrawerToggle}
+						sx={{ mr: 2, display: { sm: 'none' } }}
+					>
+						<MenuIcon />
+					</IconButton>
+					<Typography variant="h6" noWrap component="div">
+						Responsive drawer
+					</Typography>
+				</Toolbar>
+			</AppBar>
+			<Box
+				component="nav"
+				sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+				aria-label="mailbox folders"
+			>
+				{/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+				<Drawer
+					container={container}
+					variant="temporary"
+					open={mobileOpen}
+					onClose={handleDrawerToggle}
+					ModalProps={{
+						keepMounted: true, // Better open performance on mobile.
+					}}
+					sx={{
+						display: { xs: 'block', sm: 'none' },
+						'& .MuiDrawer-paper': {
+							boxSizing: 'border-box',
+							width: drawerWidth,
+							backgroundColor: '#1C1D25',
+						},
+					}}
+				>
+					{drawer}
+				</Drawer>
+				<Drawer
+					variant="permanent"
+					sx={{
+						display: { xs: 'none', sm: 'block' },
+						'& .MuiDrawer-paper': {
+							boxSizing: 'border-box',
+							width: drawerWidth,
+							backgroundColor: '#1C1D25',
+						},
+					}}
+					open
+				>
+					{drawer}
+				</Drawer>
+			</Box>
+			<Box
+				component="main"
+				sx={{
+					flexGrow: 1,
+					p: 3,
+					width: { sm: `calc(100% - ${drawerWidth}px)` },
+					mt: '50px',
+				}}
+			>
+				{props.children}
+				{/* <Toolbar />
         <Typography paragraph>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
           eiusmod tempor incididunt ut labore et dolore magna aliqua. Rhoncus
@@ -202,7 +214,7 @@ export default function ResponsiveDrawer(props: any) {
           eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
           posuere sollicitudin aliquam ultrices sagittis orci a.
         </Typography> */}
-      </Box>
-    </Box>
-  );
+			</Box>
+		</Box>
+	)
 }

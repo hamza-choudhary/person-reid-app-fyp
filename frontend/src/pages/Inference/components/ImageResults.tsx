@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React from "react"
 import Button from "../../../components/UI/Button"
 
 enum Step {
@@ -25,7 +25,7 @@ const ImageResults: React.FC<ImageResultsProps> = ({
   setCurrentStep,
   query,
 }) => {
-  const [results, setResults] = useState<string[]>([])
+  // const [results, setResults] = useState<string[]>([])
   // setCurrentStep(Step.SelectGallery)
 
   return (
@@ -73,42 +73,44 @@ const ImageResults: React.FC<ImageResultsProps> = ({
         </div>
       </>
       {/* Results */}
-      <>
-        {results.length ? (
-          <>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-              {results &&
-                results?.map((image) => (
-                  <div
-                    key={image.substring(0, image.length - 4)}
-                    className="relative cursor-pointer"
-                  >
-                    <img
-                      className="object-cover object-center w-full h-56 max-w-full rounded-lg"
-                      src={`http://localhost:8080/uploads/results/${image}`}
-                    />
-                    <div className="z-10 absolute inset-0 bg-black bg-opacity-35 flex flex-col rounded-lg opacity-0 hover:opacity-100 transition-opacity">
-                      {/* <div className=" flex flex-col justify-center items-center my-auto">
-											<p className="text-white text-xl">
-												{gallery.size} images
-											</p>
-											<p>{date}</p>
-										</div> */}
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </>
-        ) : (
-          <div>
-            <h1 className="mt-4 text-center text-xl font-semibold">
-              No Results Found {":("}
-            </h1>
-          </div>
-        )}
-      </>
+      {/*  */}
     </>
   )
 }
 
 export default ImageResults
+
+//{/* <>
+        // {results.length ? (
+        //   <>
+        //     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+        //       {results &&
+        //         results?.map((image) => (
+        //           <div
+        //             key={image.substring(0, image.length - 4)}
+        //             className="relative cursor-pointer"
+        //           >
+        //             <img
+        //               className="object-cover object-center w-full h-56 max-w-full rounded-lg"
+        //               src={`http://localhost:8080/uploads/results/${image}`}
+        //             />
+        //             <div className="z-10 absolute inset-0 bg-black bg-opacity-35 flex flex-col rounded-lg opacity-0 hover:opacity-100 transition-opacity">
+                 //     {/* <div className=" flex flex-col justify-center items-center my-auto">
+											// <p className="text-white text-xl">
+											// 	{gallery.size} images
+											// </p>
+											// <p>{date}</p>
+										//</div> */}
+      //               </div>
+      //             </div>
+      //           ))}
+      //       </div>
+      //     </>
+      //   ) : (
+      //     <div>
+      //       <h1 className="mt-4 text-center text-xl font-semibold">
+      //         Processing
+      //       </h1>
+      //     </div>
+      //   )}
+      // </> */}
