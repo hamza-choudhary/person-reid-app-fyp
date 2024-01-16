@@ -76,7 +76,7 @@ const GallerySelection: React.FC<GalleryProps> = ({
                 <div className="flex flex-col justify-center items-center my-auto">
                   <p className="text-white text-xl">{gallery.size} images</p>
                   <p className="text-white">{date}</p>
-                  <p className="text-white">{gallery._id}</p>
+                  {/* <p className="text-white">{gallery._id}</p> */}
                 </div>
               </div>
             </div>

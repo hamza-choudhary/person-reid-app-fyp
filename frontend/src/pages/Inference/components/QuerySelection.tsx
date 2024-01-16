@@ -45,7 +45,7 @@ const QuerySelection: React.FC<QuerySelectionProps> = ({
 						<div className="z-10 absolute inset-0 bg-black bg-opacity-35 flex flex-col rounded-lg opacity-0 hover:opacity-100 transition-opacity">
 							<div className="flex flex-col justify-center items-center my-auto">
 								<p className="text-white text-xl">{query.name}</p>
-								<p className='text-white'>{query._id}</p>
+								{/* <p className='text-white'>{query._id}</p> */}
 							</div>
 						</div>
 					</div>

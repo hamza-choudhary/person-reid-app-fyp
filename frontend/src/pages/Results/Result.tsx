@@ -27,9 +27,9 @@ export default function Result() {
 		video: '',
 	})
 
-	if (!resultId) {
-		navigate('/404')
-	}
+	// if (!resultId) {
+	// 	navigate('/404')
+	// }
 
 	const [showCarosal, setShowCarosal] = useState(false)
 	const [imageIndex, setImageIndex] = useState(0)
@@ -67,16 +67,16 @@ export default function Result() {
 						.replace(/(\d+)\/(\d+)\/(\d+),\s(\d+:\d+\s[APM]+)/, '$2/$1/$3 $4')
 				}
 
-				if (!data?.resultImages?.length && !data?.video) {
-					navigate('/404')
-					return
-				}
+				// if (!data?.resultImages?.length && !data?.video) {
+				// 	navigate('/404')
+				// 	return
+				// }
 
 				setResult({ ...data, createdAt: date })
 			} catch (error) {
 				//FIXME: handle error and success
 				console.log(`not fetching the ${resultId} `, error)
-				navigate('/404')
+				// navigate('/404')
 				return
 			}
 		}
@@ -117,7 +117,7 @@ export default function Result() {
 			{result.resultImages && result?.resultImages?.length > 0 ? (
 				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
 					{result?.resultImages.map((image, index) => (
-						<>
+						<div key={image.substring(0, image.length - 4)}>
 							<div
 								key={image.substring(0, image.length - 4)}
 								className="relative cursor-pointer"
@@ -143,7 +143,7 @@ export default function Result() {
 								imageType="results"
 								images={result.resultImages as string[]}
 							/>
-						</>
+						</div>
 					))}
 				</div>
 			) : (
