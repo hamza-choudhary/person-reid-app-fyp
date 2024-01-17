@@ -155,9 +155,9 @@ def main():
                 # video_writer.release()
                     # print(f"OUTPUT_VIDEO_PATH:{output_video_path}")
                     # sys.stdout.flush()
+                print(f"\nOUTPUT_VIDEO_PATH:{output_video_path}\n", flush=True)
 
     end_time_all = time.time()
     print(f"Total time: {end_time_all - start_time_all:.2f} seconds", flush=True)
-    print(f"OUTPUT_VIDEO_PATH:{output_video_path}", flush=True)
 if __name__ == "__main__":
     main()

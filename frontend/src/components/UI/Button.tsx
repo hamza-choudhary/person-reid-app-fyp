@@ -10,7 +10,7 @@ const Button: FC<ButtonProps> = ({
   children,
   ...attributes
 }) => {
-  const buttonClass = `px-3 text-white rounded-sm bg-primary ${className}` // Move className to the end
+  const buttonClass = `px-7 py-2 text-white rounded-sm bg-primary ${className}` // Move className to the end
 
   return (
     <button className={buttonClass} {...attributes}>

@@ -30,15 +30,15 @@ const QuerySelection: React.FC<QuerySelectionProps> = ({
 						key={query._id}
 						className={`z-20 relative cursor-pointer rounded-lg ${
 							formData.queryId === query._id
-								? 'selected border-2 border-sky-700'
-								: 'border-2 border-transparent'
+								? 'selected border-4 border-sky-700'
+								: 'border-4 border-transparent'
 						}`}
 						onClick={() =>
 							setFormData((prev) => ({ ...prev, queryId: query._id }))
 						}
 					>
 						<img
-							className="object-top object-scale-down rounded-sm max-h-[12rem] max-w-[12rem]"
+							className="object-top object-scale-down rounded-sm max-h-[20rem] max-w-[20rem]"
 							src={`http://localhost:8080/uploads/query/${query.image}`}
 							alt={query.name}
 						/>
