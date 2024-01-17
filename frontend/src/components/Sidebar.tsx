@@ -119,8 +119,13 @@ export default function ResponsiveDrawer(props: any) {
           ml: { sm: `${drawerWidth}px` },
         }}
       >
-        <div className="flex justify-end items-end absolute right-6 top-6">
-          <Button onClick={() => logout()}>Logout</Button>
+        <div className="flex justify-end items-end absolute right-6 top-4">
+          <Button
+            className="px-[1rem] py-1 bg-red-400 hover:bg-red-600 cursor-pointer z-50"
+            onClick={() => logout()}
+          >
+            Logout
+          </Button>
         </div>
         <Toolbar>
           <IconButton

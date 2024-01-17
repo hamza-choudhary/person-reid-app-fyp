@@ -57,8 +57,8 @@ const GallerySelection: React.FC<GalleryProps> = ({
               key={gallery._id}
               className={`z-20 relative cursor-pointer rounded-lg ${
                 formData.galleryId === gallery._id
-                  ? 'selected border-2 border-sky-700'
-                  : 'border-2 border-transparent'
+                  ? 'selected border-4 border-sky-700'
+                  : 'border-4 border-transparent'
               }`}
               onClick={() =>
                 setFormData((prev) => ({
@@ -104,8 +104,8 @@ const GallerySelection: React.FC<GalleryProps> = ({
               key={gallery._id}
               className={`z-20 relative cursor-pointer rounded-lg ${
                 formData.galleryId === gallery._id
-                  ? 'selected border-2 border-sky-700'
-                  : 'border-2 border-transparent'
+                  ? 'selected border-4 border-sky-700'
+                  : 'border-4 border-transparent'
               }`}
               onClick={() =>
                 setFormData((prev) => ({

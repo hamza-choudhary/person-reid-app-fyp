@@ -43,7 +43,7 @@ const Table: React.FC<TableProps> = ({
       ) : (
         <div className="mt-8 ">
           <div className="-px-4 -my-2 overflow-x-auto sm:-px-6 lg:-px-8">
-            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8 bg-white rounded-md shadow-xl">
               <table
                 className="min-w-full divide-y divide-gray-300 table-fixed equal-cols"
                 style={{ '--num-cols': columns.length + 1 }}
